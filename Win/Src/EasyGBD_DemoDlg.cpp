@@ -59,6 +59,8 @@ CEasyGBDDemoDlg::CEasyGBDDemoDlg(CWnd* pParent /*=nullptr*/)
 
 	InitMutex(&mLogMutex);
 	memset(&mGB28181Device, 0x00, sizeof(GB28181_DEVICE_T));
+
+	memset(&mGB28181DeviceList, 0x00, sizeof(GB28181_DEVICE_LIST_T));
 }
 
 void CEasyGBDDemoDlg::DoDataExchange(CDataExchange* pDX)
@@ -123,6 +125,7 @@ BOOL CEasyGBDDemoDlg::OnInitDialog()
 	pEdtPassword = (CEdit*)GetDlgItem(IDC_EDIT_PASSWORD);
 	pEdtLocalSipID = (CEdit*)GetDlgItem(IDC_EDIT_LOCAL_SIPID);
 	pEdtLocalPort = (CEdit*)GetDlgItem(IDC_EDIT_LOCAL_PORT);
+	pEdtDeviceName = (CEdit*)GetDlgItem(IDC_EDIT_DEVICE_NAME);
 	pEdtSourceURL = (CEdit*)GetDlgItem(IDC_EDIT_SOURCE_URL);
 
 	pBtnStartup = (CButton*)GetDlgItem(IDC_BUTTON_STARTUP);
@@ -130,9 +133,24 @@ BOOL CEasyGBDDemoDlg::OnInitDialog()
 	pRichEditLog = (CRichEditCtrl*)GetDlgItem(IDC_RICHEDIT2_LOG);
 
 
-
 	pEdtServerSipID->SetWindowTextW(TEXT("34020000002000000001"));
-	//pEdtServerIP->SetWindowTextW(TEXT("172.81.216.155"));
+	pEdtServerIP->SetWindowTextW(TEXT("212.64.34.165"));
+	//pEdtServerIP->SetWindowTextW(TEXT("192.168.0.77"));
+	//
+	wchar_t wszDeviceName[32] = { 0 };
+
+	time_t currentTime = time(NULL);
+	unsigned int randValue = currentTime & 0xFFFFF;
+
+	wchar_t wszRandSipID[32] = { 0 };
+	wsprintf(wszRandSipID, TEXT("34020000001110%06d"), randValue);
+	wsprintf(wszDeviceName, TEXT("EasyGBD-%06d"), randValue);
+	int sipIdLen = (int)wcslen(wszRandSipID);
+	for (int i = sipIdLen; i > 20; i--)
+	{
+		wszRandSipID[i - 1] = TEXT('\0');
+	}
+
 	pEdtServerPort->SetWindowTextW(TEXT("15060"));
 	pEdtRegExpire->SetWindowTextW(TEXT("3600"));
 	pEdtHeartbeatCount->SetWindowTextW(TEXT("3"));
@@ -141,15 +159,31 @@ BOOL CEasyGBDDemoDlg::OnInitDialog()
 	pComboxProtocol->AddString(TEXT("TCP"));
 	pComboxProtocol->SetCurSel(0);
 	pEdtPassword->SetWindowTextW(TEXT("12345678"));
-	//pEdtLocalSipID->SetWindowTextW(TEXT("34020000001110000009"));
+	pEdtLocalSipID->SetWindowTextW(wszRandSipID);// TEXT("34020000001110000009"));
 	pEdtLocalPort->SetWindowTextW(TEXT("15090"));
-	//pEdtSourceURL->SetWindowTextW(TEXT("rtsp://admin:admin12345@190.168.8.106"));
+	pEdtDeviceName->SetWindowTextW(wszDeviceName);
+	pEdtSourceURL->SetWindowTextW(TEXT("G:/VideoSamples/Alizee_La_Isla_Bonita_Mixiran_Arash.avi"));
 
 
+	wchar_t wszPath[128] = { 0 };
+	GetModuleFileName(NULL, wszPath, sizeof(wszPath));
+	int nSize = (int)wcslen(wszPath);
+
+	int i = nSize;
+	for (i = nSize; i > 0; i--)
+	{
+		if ((unsigned char)wszPath[i] == '\\')
+		{
+			//wszPath[i] = '\0';
+			break;
+		}
+		wszPath[i] = '\0';
+	}
+
+	wcscat(wszPath, TEXT("EasyDarwin.mp4"));
+	pEdtSourceURL->SetWindowTextW(wszPath);
 
 	OnBnClickedButtonShutdown();
-
-	
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -284,13 +318,18 @@ void CEasyGBDDemoDlg::OnBnClickedButtonStart()
 	pEdtLocalPort->GetWindowTextW(wszLocalPort, sizeof(wszLocalPort));
 	WCharToMByte(wszLocalPort, szLocalPort, sizeof(szLocalPort) / sizeof(szLocalPort[0]));
 
+	wchar_t wszDeviceName[128] = { 0 };
+	char szDeviceName[128] = { 0 };
+	pEdtDeviceName->GetWindowTextW(wszDeviceName, sizeof(wszDeviceName));
+	WCharToMByte(wszDeviceName, szDeviceName, sizeof(szDeviceName) / sizeof(szDeviceName[0]));
+
 	wchar_t wszSourceURL[1024] = { 0 };
 	char szSourceURL[1024] = { 0 };
 	pEdtSourceURL->GetWindowTextW(wszSourceURL, sizeof(wszSourceURL));
 	WCharToMByte(wszSourceURL, szSourceURL, sizeof(szSourceURL) / sizeof(szSourceURL[0]));
 
 	Startup(szServerSipId, szServerIP, atoi(szServerPort), atoi(szRegExpire), atoi(szHeartbeatCount), atoi(szHeartbeatInterval),
-		protocol, szPassword, szLocalSipID, atoi(szLocalPort), szSourceURL);
+		protocol, szPassword, 1, szLocalSipID, atoi(szLocalPort), szDeviceName, szSourceURL);
 
 
 	pBtnStartup->EnableWindow(FALSE);
@@ -403,6 +442,19 @@ int CALLBACK __GB28181DeviceCALLBACK(void* userPtr, int channelId, int eventType
 		}
 
 	}
+	else if (GB28181_DEVICE_EVENT_SUBSCRIBE_ALARM == eventType)
+	{
+		pThis->OutputLog("GB/T28181 订阅报警:%d.\n", paramLength);
+	}
+	else if (GB28181_DEVICE_EVENT_SUBSCRIBE_CATALOG == eventType)
+	{
+		pThis->OutputLog("GB/T28181 订阅目录:%d.\n", paramLength);
+	}
+	else if (GB28181_DEVICE_EVENT_SUBSCRIBE_MOBILEPOSITION == eventType)
+	{
+		pThis->OutputLog("GB/T28181 订阅位置:%d.\n", paramLength);
+	}
+	//
 
 	return 0;
 }
@@ -414,15 +466,23 @@ int Easy_APICALL __EasyStreamClientCallBack(void* _channelPtr, int _frameType, v
 
 	if (_frameType == EASY_SDK_VIDEO_FRAME_FLAG)
 	{
-		if (pChannel->videoCodec < 1)
+		if (pChannel->videoCodec < 1 && (pChannel->mediaInfo.u32AudioCodec>0 || pChannel->videoFrameNum>25))
 		{
 			pThis->OutputLog("设置视频编码格式: %s\n", _frameInfo->codec == EASY_SDK_VIDEO_CODEC_H264 ? "H264" : "H265");
 
 			libGB28181Device_SetVideoFormat(pChannel->id, _frameInfo->codec, 0, 0, 0);
-			libGB28181Device_SetAudioFormat(pChannel->id, EASY_SDK_AUDIO_CODEC_G711U, 8000, 1, 16);
+			libGB28181Device_SetAudioFormat(pChannel->id, pChannel->mediaInfo.u32AudioCodec,
+				pChannel->mediaInfo.u32AudioSamplerate,
+				pChannel->mediaInfo.u32AudioChannel > 2 ? 2 : pChannel->mediaInfo.u32AudioChannel,
+				pChannel->mediaInfo.u32AudioBitsPerSample);
 
+			//libGB28181Device_SetAudioFormat(pChannel->id, EASY_SDK_AUDIO_CODEC_AAC,//EASY_SDK_AUDIO_CODEC_G711U,
+			//	pChannel->mediaInfo.u32AudioSamplerate,			
+			//	pChannel->mediaInfo.u32AudioChannel > 2 ? 2 : pChannel->mediaInfo.u32AudioChannel,
+			//	pChannel->mediaInfo.u32AudioBitsPerSample);
 			pChannel->videoCodec = _frameInfo->codec;
 		}
+		pChannel->videoFrameNum++;
 
 		if (pChannel->sendStatus == 1)
 		{
@@ -446,6 +506,11 @@ int Easy_APICALL __EasyStreamClientCallBack(void* _channelPtr, int _frameType, v
 	}
 	else if (_frameType == EASY_SDK_AUDIO_FRAME_FLAG)
 	{
+		pChannel->mediaInfo.u32AudioCodec = _frameInfo->codec;
+		pChannel->mediaInfo.u32AudioSamplerate = _frameInfo->sample_rate;
+		pChannel->mediaInfo.u32AudioChannel = _frameInfo->channels;
+		pChannel->mediaInfo.u32AudioBitsPerSample = _frameInfo->bits_per_sample;
+
 		if (pChannel->sendStatus == 1)
 		{
 			libGB28181Device_AddAudioData(pChannel->id, _frameInfo->codec, (char*)pBuf, _frameInfo->length, _frameInfo->length);
@@ -524,6 +589,13 @@ int Easy_APICALL __EasyStreamClientCallBack(void* _channelPtr, int _frameType, v
 			pThis->OutputLog("当前视频源连接异常中断.\n");
 		}
 	}
+	else if (_frameType == EASY_SDK_MEDIA_INFO_FLAG)
+	{
+		EASY_MEDIA_INFO_T* pMediaInfo = (EASY_MEDIA_INFO_T*)pBuf;
+
+		//memcpy(&pChannel->mediaInfo, pMediaInfo, sizeof(EASY_MEDIA_INFO_T));// pChannel = pMediaInfo->u32AudioCodec;
+
+	}
 
 	return 0;
 }
@@ -532,9 +604,105 @@ int Easy_APICALL __EasyStreamClientCallBack(void* _channelPtr, int _frameType, v
 
 int		CEasyGBDDemoDlg::Startup(const char* serverSIPId, const char* serverIP, const int serverPort,
 								const int reg_expires, const int heartbeatCount, const int heartbeatInterval,
-								const int protocol, const char* password, const char* localSIPId, const int localPort, const char* sourceURL)
+								const int protocol, const char* password,
+								const int deviceNum, const char* localSIPId, const int localPort, 
+								const char* deviceName, const char* sourceURL)
 {
 	int ret = 0;
+
+	if (NULL == mGB28181DeviceList.pGB28181Device && deviceNum>1)
+	{
+		OutputLog("启动中...\n");
+
+		mGB28181DeviceList.nDeviceNum = deviceNum;
+		mGB28181DeviceList.pGB28181Device = new GB28181_DEVICE_T[deviceNum];
+		if (mGB28181DeviceList.pGB28181Device)
+		{
+			memset(mGB28181DeviceList.pGB28181Device, 0x00, sizeof(GB28181_DEVICE_T) * deviceNum);
+
+			for (int i = 0; i < deviceNum; i++)
+			{
+				mGB28181DeviceList.pGB28181Device[i].pChannel = new GB28181_CHANNEL_T[MAX_GB28181_CHANNEL_NUM];
+				if (mGB28181DeviceList.pGB28181Device[i].pChannel)
+				{
+					memset(mGB28181DeviceList.pGB28181Device[i].pChannel, 0x00, sizeof(GB28181_CHANNEL_T) * MAX_GB28181_CHANNEL_NUM);
+					for (int i = 0; i < MAX_GB28181_CHANNEL_NUM; i++)
+					{
+						mGB28181DeviceList.pGB28181Device[i].pChannel[i].id = i;
+						mGB28181DeviceList.pGB28181Device[i].pChannel[i].userptr = this;
+						strcpy(mGB28181DeviceList.pGB28181Device[i].pChannel[i].sourceURL, sourceURL);// "rtsp://admin:admin12345@192.168.6.41");
+
+
+						mGB28181DeviceList.pGB28181Device[i].pChannel[i].longitude = 121.29;
+						mGB28181DeviceList.pGB28181Device[i].pChannel[i].latitude = 31.14;
+					}
+
+					GB28181_DEVICE_INFO_T   gb28181DeviceInfo;
+					memset(&gb28181DeviceInfo, 0x00, sizeof(GB28181_DEVICE_INFO_T));
+					strcpy(gb28181DeviceInfo.device_name, deviceName);// "GB/T28181 Client");
+
+					gb28181DeviceInfo.version = 0;
+					strcpy(gb28181DeviceInfo.server_id, serverSIPId);
+					memcpy(gb28181DeviceInfo.server_domain, gb28181DeviceInfo.server_id, 10);
+					strcpy(gb28181DeviceInfo.server_ip, serverIP);
+					gb28181DeviceInfo.server_port = serverPort;
+					gb28181DeviceInfo.reg_expires = reg_expires;
+					gb28181DeviceInfo.heartbeat_count = heartbeatCount;
+					gb28181DeviceInfo.heartbeat_interval = heartbeatInterval;
+					gb28181DeviceInfo.protocol = protocol; //0 - udp; 1 - tcp
+					gb28181DeviceInfo.media_protocol = protocol;
+					strcpy(gb28181DeviceInfo.password, password);
+					gb28181DeviceInfo.log_enable = 1;         // log enable flag
+					gb28181DeviceInfo.log_level = 0;          // log level(0:TRACE,1:DEBUG,2:INFO,3:WARNING,4:ERROR,5:FATAL)
+
+					strcpy(gb28181DeviceInfo.device_id, localSIPId);
+					gb28181DeviceInfo.localSipPort = localPort;
+
+					gb28181DeviceInfo.channel_nums = MAX_GB28181_CHANNEL_NUM;
+					for (int i = 0; i < gb28181DeviceInfo.channel_nums; i++)
+					{
+						sprintf(gb28181DeviceInfo.channel[i].id, "%s1310%06d", gb28181DeviceInfo.server_domain, i + 1);
+						//sprintf(gb28181DeviceInfo.channel[i].name, "ch %02d", i + 1);
+						strcpy(gb28181DeviceInfo.channel[i].name, "EasyIPC");
+						strcpy(gb28181DeviceInfo.channel[i].model, "IPCamera");
+						sprintf(gb28181DeviceInfo.channel[i].owner, "Owner %02d", i + 1);
+						strcpy(gb28181DeviceInfo.channel[i].manufacturer, "Easy");
+						gb28181DeviceInfo.channel[i].longitude = (double)i + 100;
+						gb28181DeviceInfo.channel[i].latitude = (double)i + 10;
+					}
+
+					libGB28181Device_Create(&gb28181DeviceInfo/*为NULL则表示从当前目录下读取config.xml*/, __GB28181DeviceCALLBACK, (void*)&mGB28181Device);
+
+					for (int i = 0; i < MAX_GB28181_CHANNEL_NUM; i++)
+					{
+						if (0 == strcmp(mGB28181DeviceList.pGB28181Device[i].pChannel[i].sourceURL, "\0"))    continue;
+
+
+						EasyStreamClient_Init(&mGB28181DeviceList.pGB28181Device[i].pChannel[i].streamClientHandle, 0);
+						EasyStreamClient_SetCallback(mGB28181DeviceList.pGB28181Device[i].pChannel[i].streamClientHandle, __EasyStreamClientCallBack);
+						EasyStreamClient_OpenStream(mGB28181DeviceList.pGB28181Device[i].pChannel[i].streamClientHandle,
+							mGB28181DeviceList.pGB28181Device[i].pChannel[i].sourceURL, EASY_RTP_OVER_TCP, &mGB28181DeviceList.pGB28181Device[i].pChannel[i], 1000, 20, 1);
+						EasyStreamClient_SetAudioEnable(mGB28181DeviceList.pGB28181Device[i].pChannel[i].streamClientHandle, 1);
+						//EasyStreamClient_SetAudioOutFormat(mGB28181DeviceList.pGB28181Device[i].pChannel[i].streamClientHandle, EASY_SDK_AUDIO_CODEC_AAC, 8000, 1);
+						//mGB28181DeviceList.pGB28181Device[i].pChannel[i].audioOutputFormat = TRANSCODE_AUDIO_TYPE_G711U;// TRANSCODE_AUDIO_TYPE_G711U;
+
+						//libGB28181Device_SetVideoFormat(i, EASY_SDK_VIDEO_CODEC_H265, 0, 0, 0);
+						//libGB28181Device_SetAudioFormat(i, EASY_SDK_AUDIO_CODEC_AAC, 8000, 1, 16);
+					}
+
+					OutputLog("已启动..\n");
+				}
+				else
+				{
+					OutputLog("启动失败...\n");
+					ret = -1000;
+					return ret;
+				}
+			}
+		}
+
+		return 0;
+	}
 
 	if (NULL == mGB28181Device.pChannel)
 	{
@@ -557,6 +725,7 @@ int		CEasyGBDDemoDlg::Startup(const char* serverSIPId, const char* serverIP, con
 
 			GB28181_DEVICE_INFO_T   gb28181DeviceInfo;
 			memset(&gb28181DeviceInfo, 0x00, sizeof(GB28181_DEVICE_INFO_T));
+			strcpy(gb28181DeviceInfo.device_name, deviceName); //"GB/T28181 Client");
 
 			gb28181DeviceInfo.version = 0;
 			strcpy(gb28181DeviceInfo.server_id, serverSIPId);
@@ -600,7 +769,7 @@ int		CEasyGBDDemoDlg::Startup(const char* serverSIPId, const char* serverIP, con
 				EasyStreamClient_OpenStream(mGB28181Device.pChannel[i].streamClientHandle,
 					mGB28181Device.pChannel[i].sourceURL, EASY_RTP_OVER_TCP, &mGB28181Device.pChannel[i], 1000, 20, 1);
 				EasyStreamClient_SetAudioEnable(mGB28181Device.pChannel[i].streamClientHandle, 1);
-				EasyStreamClient_SetAudioOutFormat(mGB28181Device.pChannel[i].streamClientHandle, EASY_SDK_AUDIO_CODEC_G711U, 8000, 1);
+				//EasyStreamClient_SetAudioOutFormat(mGB28181Device.pChannel[i].streamClientHandle, EASY_SDK_AUDIO_CODEC_AAC, 8000, 1);
 				//mGB28181Device.pChannel[i].audioOutputFormat = TRANSCODE_AUDIO_TYPE_G711U;// TRANSCODE_AUDIO_TYPE_G711U;
 
 				//libGB28181Device_SetVideoFormat(i, EASY_SDK_VIDEO_CODEC_H265, 0, 0, 0);
@@ -622,6 +791,38 @@ int		CEasyGBDDemoDlg::Startup(const char* serverSIPId, const char* serverIP, con
 }
 void	CEasyGBDDemoDlg::Shutdown()
 {
+	if (mGB28181DeviceList.pGB28181Device)
+	{
+		for (int i = 0; i < mGB28181DeviceList.nDeviceNum; i++)
+		{
+			for (int ch = 0; ch < MAX_GB28181_CHANNEL_NUM; ch++)
+			{
+				if (0 == strcmp(mGB28181DeviceList.pGB28181Device[i].pChannel[ch].sourceURL, "\0"))    continue;
+
+				mGB28181DeviceList.pGB28181Device[i].pChannel[ch].sendStatus = 0;
+
+				EasyStreamClient_Deinit(mGB28181DeviceList.pGB28181Device[i].pChannel[ch].streamClientHandle);
+				mGB28181DeviceList.pGB28181Device[i].pChannel[ch].streamClientHandle = NULL;
+
+				//ATC_Deinit(&mGB28181Device.pChannel[i].atcHandle);
+
+				if (NULL != mGB28181DeviceList.pGB28181Device[i].pChannel[ch].fDat)
+				{
+					fclose(mGB28181DeviceList.pGB28181Device[i].pChannel[ch].fDat);
+					mGB28181DeviceList.pGB28181Device[i].pChannel[ch].fDat = NULL;
+				}
+			}
+
+			delete[]mGB28181DeviceList.pGB28181Device[i].pChannel;
+			mGB28181DeviceList.pGB28181Device[i].pChannel = NULL;
+		}
+
+		delete[]mGB28181DeviceList.pGB28181Device;
+		mGB28181DeviceList.pGB28181Device = NULL;
+	}
+
+
+
 	if (NULL == mGB28181Device.pChannel)		return;
 
 	OutputLog("停止中...\n");

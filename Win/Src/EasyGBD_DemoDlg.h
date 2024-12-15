@@ -26,9 +26,11 @@ typedef struct __GB28181_CHANNEL_T
 	Easy_Handle  streamClientHandle;
 	//ATC_HANDLE  atcHandle;
 
+	EASY_MEDIA_INFO_T	mediaInfo;
 	int			videoCodec;
 	int         srcAudioCodec;
 	int         sendStatus;
+	int			videoFrameNum;
 
 	int         audioOutputFormat;
 
@@ -47,6 +49,14 @@ typedef struct __GB28181_DEVICE_T
 
 #define MAX_GB28181_CHANNEL_NUM		1
 
+typedef struct __GB28181_DEVICE_LIST_T
+{
+	GB28181_DEVICE_T* pGB28181Device;
+	int				nDeviceNum;
+
+	bool			shareSource;
+}GB28181_DEVICE_LIST_T;
+
 // CEasyGBDDemoDlg 对话框
 class CEasyGBDDemoDlg : public CDialogEx
 {
@@ -64,6 +74,7 @@ public:
 	CEdit* pEdtPassword;			//IDC_EDIT_PASSWORD
 	CEdit* pEdtLocalSipID;			//IDC_EDIT_LOCAL_SIPID
 	CEdit* pEdtLocalPort;			//IDC_EDIT_LOCAL_PORT
+	CEdit* pEdtDeviceName;			//IDC_EDIT_DEVICE_NAME
 	CEdit* pEdtSourceURL;			//IDC_EDIT_SOURCE_URL
 
 	CButton* pBtnStartup;			//IDC_BUTTON_STARTUP
@@ -74,10 +85,12 @@ public:
 
 	int		Startup(const char *serverSIPId, const char *serverIP, const int serverPort,
 		const int reg_expires, const int heartbeatCount, const int heartbeatInterval,
-		const int protocol, const char *password, const char *localSIPId, const int localPort, const char *sourceURL);
+		const int protocol, const char *password, const int deviceNum, const char *localSIPId, const int localPort, 
+		const char *deviceName, const char *sourceURL);
 	void	Shutdown();
 
 	GB28181_DEVICE_T	mGB28181Device;
+	GB28181_DEVICE_LIST_T	mGB28181DeviceList;
 
 	int OutputLog(char* szFormat, ...);
 	void OutputLog2UI();

@@ -23,6 +23,8 @@
 #define IDC_BUTTON_BROWSE               1013
 #define IDC_RICHEDIT21                  1014
 #define IDC_RICHEDIT2_LOG               1014
+#define IDC_EDIT_LOCAL_NAME             1015
+#define IDC_EDIT_DEVICE_NAME            1015
 
 // Next default values for new objects
 // 

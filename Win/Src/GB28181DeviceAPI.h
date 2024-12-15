@@ -32,8 +32,22 @@ typedef enum __GB28181_DEVICE_EVENT_TYPE_ENUM_T
 	GB28181_DEVICE_EVENT_START_AUDIO_VIDEO,		//请求推送音视频
 	GB28181_DEVICE_EVENT_STOP_AUDIO_VIDEO,		//请求停止推送音视频
 	GB28181_DEVICE_EVENT_TALK_AUDIO_DATA,		//对端对讲数据
+	GB28181_DEVICE_EVENT_DISCONNECT,			//已断线
 
-	GB28181_DEVICE_EVENT_DISCONNECT				//已断线
+	GB28181_DEVICE_EVENT_SUBSCRIBE_ALARM,		// 报警订阅
+	GB28181_DEVICE_EVENT_SUBSCRIBE_CATALOG,		// 目录订阅
+	GB28181_DEVICE_EVENT_SUBSCRIBE_MOBILEPOSITION,		// 位置订阅
+
+
+	GB28181_DEVICE_EVENT_PTZ_MOVE_LEFT,			// 云台-左
+	GB28181_DEVICE_EVENT_PTZ_MOVE_UP,			// 云台-上
+	GB28181_DEVICE_EVENT_PTZ_MOVE_RIGHT,		// 云台-右
+	GB28181_DEVICE_EVENT_PTZ_MOVE_DOWN,			// 云台-下
+	GB28181_DEVICE_EVENT_PTZ_MOVE_STOP,			// 云台-停
+	GB28181_DEVICE_EVENT_PTZ_ZOOM_IN,			// 云台-拉近
+	GB28181_DEVICE_EVENT_PTZ_ZOOM_OUT,			// 云台-拉远
+
+
 }GB28181_DEVICE_EVENT_TYPE_ENUM_T;
 
 #define MAX_CH_NUMS     8
@@ -62,6 +76,7 @@ typedef struct __GB28181_DEVICE_INFO_T
 	char    server_id[32];      // server id
 	char	server_domain[64];  // server domain
 	char	device_id[32];      // device id
+	char	device_name[64];	// device name  2024.12.04
 	int		localSipPort;		//Local sip port
 	int     channel_nums;       // channel numbers
 	GB28181_CHANNEL_INFO_T channel[MAX_CH_NUMS];
@@ -87,7 +102,7 @@ userPtr:			用户自定义指针,用于在回调函数中回调给调用者
 int GB28181DEVICE_API	libGB28181Device_Create(GB28181_DEVICE_INFO_T *pDeviceInfo, GB28181DeviceCALLBACK callbackPtr, void *userPtr);
 
 int GB28181DEVICE_API	libGB28181Device_Create2(char* serverIP, int serverPort, char* serverId, char* serverDomain,
-													char* deviceId, int localSipPort, int channelNum,
+													char* deviceId, char* deviceName, int localSipPort, int channelNum,
 													GB28181_CHANNEL_INFO_T*pChannel,
 													char* password, int protocol, int mediaProtocol,
 													int regExpires, int heartbeatInterval, int heartbeatCount,
