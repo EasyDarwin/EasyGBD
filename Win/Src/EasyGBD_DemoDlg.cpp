@@ -134,7 +134,7 @@ BOOL CEasyGBDDemoDlg::OnInitDialog()
 
 
 	pEdtServerSipID->SetWindowTextW(TEXT("34020000002000000001"));
-	pEdtServerIP->SetWindowTextW(TEXT("212.64.34.165"));
+	pEdtServerIP->SetWindowTextW(TEXT("demo.easygbs.com"));
 	//pEdtServerIP->SetWindowTextW(TEXT("192.168.0.77"));
 	//
 	wchar_t wszDeviceName[32] = { 0 };
