@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 背景颜色 -->
+    <solid android:color="#FFFFFFFF" />
+
+    <!-- 边框颜色和宽度 -->
+    <stroke android:color="#E8E8E8" android:width="1dp" />
+
+    <!-- 阴影 -->
+    <item android:shadowDx="0" android:shadowDy="2" android:shadowColor="#33040000" />
+
+    <!-- 圆角 -->
+    <corners android:topLeftRadius="3dp" android:topRightRadius="3dp"
+        android:bottomLeftRadius="3dp" android:bottomRightRadius="3dp" />
+</shape>

@@ -1,0 +1,39 @@
+<!-- layout/activity_video.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:orientation="horizontal"
+    android:paddingLeft="@dimen/dp_24"
+    android:paddingTop="@dimen/dp_12"
+    android:paddingRight="@dimen/dp_24"
+    android:paddingBottom="@dimen/dp_12">
+
+    <TextView
+        android:id="@+id/cut"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="剪切" />
+
+    <TextView
+        android:id="@+id/copy"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/dp_24"
+        android:text="复制" />
+
+    <TextView
+        android:id="@+id/paste"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/dp_24"
+        android:text="粘贴" />
+
+    <TextView
+        android:id="@+id/modify"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/dp_24"
+        android:text="修改" />
+
+</LinearLayout>

@@ -1,0 +1,681 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.easygbs.easygbd.viewmodel.fragment.BasicSettingsViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <androidx.coordinatorlayout.widget.CoordinatorLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/dp_15"
+                    android:layout_marginRight="@dimen/dp_15"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp_35"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:text="选择版本"
+                                android:textColor="@color/color_1a1a1a"
+                                android:textSize="@dimen/sp_14" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginLeft="@dimen/dp_10"
+                                android:onClick="@{viewModel::ver}"
+                                android:orientation="vertical">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="center"
+                                    android:orientation="horizontal">
+
+                                    <TextView
+                                        android:id="@+id/tvver"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight="1"
+                                        android:gravity="center|left"
+                                        android:textColor="@color/color_666666"
+                                        android:textSize="@dimen/sp_14" />
+
+                                    <ImageView
+                                        android:id="@+id/ivverarrow"
+                                        android:layout_width="@dimen/dp_10"
+                                        android:layout_height="@dimen/dp_10"
+                                        android:background="@mipmap/ic_downarrow" />
+                                </LinearLayout>
+
+                                <!-- 使用统一的下划线组件 -->
+                                <include layout="@layout/underline" />
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="@dimen/dp_20"
+                            android:layout_weight="1"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:text="服务器端口"
+                                android:textColor="@color/color_1a1a1a"
+                                android:textSize="@dimen/sp_14" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginLeft="@dimen/dp_10"
+                                android:orientation="vertical">
+
+                                <EditText
+                                    android:id="@+id/etport"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:background="@color/transparent"
+                                    android:gravity="center|left"
+                                    android:textColor="@color/color_666666"
+                                    android:textSize="@dimen/sp_14"
+                                    app:textWatcher="@{viewModel.textWatcher}" />
+
+                                <include layout="@layout/underline" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp_35"
+                        android:layout_marginTop="@dimen/dp_1"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="@dimen/dp_100"
+                            android:layout_height="match_parent"
+                            android:gravity="center|left"
+                            android:text="SIP服务器地址"
+                            android:textColor="@color/color_1a1a1a"
+                            android:textSize="@dimen/sp_14" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="@dimen/dp_10"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <EditText
+                                android:id="@+id/etsipserveraddr"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:background="@color/transparent"
+                                android:gravity="center|left"
+                                android:textColor="@color/color_666666"
+                                android:textSize="@dimen/sp_14"
+                                app:textWatcher="@{viewModel.textWatcher}" />
+
+                            <include layout="@layout/underline" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp_35"
+                        android:layout_marginTop="@dimen/dp_1"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="@dimen/dp_100"
+                            android:layout_height="match_parent"
+                            android:gravity="center|left"
+                            android:text="SIP服务器ID"
+                            android:textColor="@color/color_1a1a1a"
+                            android:textSize="@dimen/sp_14" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="@dimen/dp_10"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <EditText
+                                android:id="@+id/etsipserverid"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:background="@color/transparent"
+                                android:gravity="center|left"
+                                android:textColor="@color/color_666666"
+                                android:textSize="@dimen/sp_14"
+                                app:textWatcher="@{viewModel.textWatcher}" />
+
+                            <include layout="@layout/underline" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp_35"
+                        android:layout_marginTop="@dimen/dp_1"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="@dimen/dp_100"
+                            android:layout_height="match_parent"
+                            android:gravity="center|left"
+                            android:text="SIP服务器域"
+                            android:textColor="@color/color_1a1a1a"
+                            android:textSize="@dimen/sp_14" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="@dimen/dp_10"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <EditText
+                                android:id="@+id/etsipserverdomain"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:background="@color/transparent"
+                                android:gravity="center|left"
+                                android:textColor="@color/color_666666"
+                                android:textSize="@dimen/sp_14"
+                                app:textWatcher="@{viewModel.textWatcher}" />
+
+                            <include layout="@layout/underline" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp_35"
+                        android:layout_marginTop="@dimen/dp_1"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="@dimen/dp_100"
+                            android:layout_height="match_parent"
+                            android:gravity="center|left"
+                            android:text="SIP用户名"
+                            android:textColor="@color/color_1a1a1a"
+                            android:textSize="@dimen/sp_14" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="@dimen/dp_10"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <EditText
+                                android:id="@+id/tvsipname"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:background="@color/transparent"
+                                android:gravity="center|left"
+                                android:textColor="@color/color_666666"
+                                android:textSize="@dimen/sp_14"
+                                app:textWatcher="@{viewModel.textWatcher}" />
+
+                            <include layout="@layout/underline" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp_35"
+                        android:layout_marginTop="@dimen/dp_1"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="@dimen/dp_100"
+                            android:layout_height="match_parent"
+                            android:gravity="center|left"
+                            android:text="设备名称"
+                            android:textColor="@color/color_1a1a1a"
+                            android:textSize="@dimen/sp_14" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="@dimen/dp_10"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <EditText
+                                android:id="@+id/etdevicename"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:background="@color/transparent"
+                                android:gravity="center|left"
+                                android:textColor="@color/color_666666"
+                                android:textSize="@dimen/sp_14"
+                                app:textWatcher="@{viewModel.textWatcher}" />
+
+                            <include layout="@layout/underline" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp_35"
+                        android:layout_marginTop="@dimen/dp_1"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="@dimen/dp_100"
+                            android:layout_height="match_parent"
+                            android:gravity="center|left"
+                            android:singleLine="true"
+                            android:text="SIP认证密码"
+                            android:textColor="@color/color_1a1a1a"
+                            android:textSize="@dimen/sp_14" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="@dimen/dp_10"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <EditText
+                                android:id="@+id/etsippassword"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:background="@color/transparent"
+                                android:gravity="center|left"
+                                android:textColor="@color/color_666666"
+                                android:textSize="@dimen/sp_14"
+                                app:textWatcher="@{viewModel.textWatcher}" />
+
+                            <include layout="@layout/underline" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp_35"
+                        android:layout_marginTop="@dimen/dp_1"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:text="SIP传输协议"
+                                android:textColor="@color/color_1a1a1a"
+                                android:textSize="@dimen/sp_14" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginLeft="@dimen/dp_10"
+                                android:onClick="@{viewModel::tranpro}"
+                                android:orientation="vertical">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="center"
+                                    android:orientation="horizontal">
+
+                                    <TextView
+                                        android:id="@+id/tvtranpro"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight="1"
+                                        android:gravity="center|left"
+                                        android:textColor="@color/color_666666"
+                                        android:textSize="@dimen/sp_14" />
+
+                                    <ImageView
+                                        android:id="@+id/ivtranproarrow"
+                                        android:layout_width="@dimen/dp_10"
+                                        android:layout_height="@dimen/dp_10"
+                                        android:background="@mipmap/ic_downarrow" />
+                                </LinearLayout>
+
+                                <include layout="@layout/underline" />
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="@dimen/dp_20"
+                            android:layout_weight="1"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:text="注册有效期(s)"
+                                android:textColor="@color/color_1a1a1a"
+                                android:textSize="@dimen/sp_14" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginLeft="@dimen/dp_10"
+                                android:orientation="vertical">
+
+                                <EditText
+                                    android:id="@+id/etregistervalidtime"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:background="@color/transparent"
+                                    android:gravity="center|left"
+                                    android:textColor="@color/color_666666"
+                                    android:textSize="@dimen/sp_14" />
+
+                                <include layout="@layout/underline" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp_35"
+                        android:layout_marginTop="@dimen/dp_1"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:text="心跳周期(s)"
+                                android:textColor="@color/color_1a1a1a"
+                                android:textSize="@dimen/sp_14" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginLeft="@dimen/dp_10"
+                                android:orientation="vertical">
+
+                                <EditText
+                                    android:id="@+id/tvheartbeatcycle"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:background="@color/transparent"
+                                    android:gravity="center|left"
+                                    android:textColor="@color/color_666666"
+                                    android:textSize="@dimen/sp_14" />
+
+                                <include layout="@layout/underline" />
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="@dimen/dp_20"
+                            android:layout_weight="1"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:text="心跳计数"
+                                android:textColor="@color/color_1a1a1a"
+                                android:textSize="@dimen/sp_14" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginLeft="@dimen/dp_10"
+                                android:orientation="vertical">
+
+                                <EditText
+                                    android:id="@+id/etheartbeatcount"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:background="@color/transparent"
+                                    android:gravity="center|left"
+                                    android:textColor="@color/color_666666"
+                                    android:textSize="@dimen/sp_14" />
+
+                                <include layout="@layout/underline" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp_35"
+                        android:layout_marginTop="@dimen/dp_1"
+                        android:gravity="center|left"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:id="@+id/lllogall"
+                            android:layout_width="@dimen/dp_18"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:id="@+id/lllog"
+                                android:layout_width="@dimen/dp_18"
+                                android:layout_height="@dimen/dp_18"
+                                android:background="@mipmap/ic_selected"
+                                android:gravity="center"
+                                android:orientation="horizontal">
+
+                                <ImageView
+                                    android:id="@+id/ivlog"
+                                    android:layout_width="@dimen/dp_10"
+                                    android:layout_height="@dimen/dp_8"
+                                    android:background="@mipmap/ic_whiteright" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="@dimen/dp_15"
+                            android:gravity="center"
+                            android:text="日志打印"
+                            android:textColor="@color/color_1a1a1a"
+                            android:textSize="@dimen/sp_14" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="@dimen/dp_25"
+                            android:gravity="center"
+                            android:text="日志级别"
+                            android:textColor="@color/color_1a1a1a"
+                            android:textSize="@dimen/sp_14" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="@dimen/dp_25"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:onClick="@{viewModel::loglevel}"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:id="@+id/tvloglevel"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:layout_weight="1"
+                                    android:gravity="center|left"
+                                    android:textColor="@color/color_666666"
+                                    android:textSize="@dimen/sp_14" />
+
+                                <ImageView
+                                    android:id="@+id/ivloglevelarrow"
+                                    android:layout_width="@dimen/dp_10"
+                                    android:layout_height="@dimen/dp_10"
+                                    android:background="@mipmap/ic_downarrow" />
+                            </LinearLayout>
+
+                            <include layout="@layout/underline" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginTop="@dimen/dp_10"
+                        android:layout_marginBottom="@dimen/dp_10"
+                        android:gravity="top|left"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:orientation="horizontal">
+
+                            <RelativeLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+
+                                <TextureView
+                                    android:id="@+id/tvcamera"
+                                    android:layout_width="@dimen/dp_175"
+                                    android:layout_height="match_parent"
+                                    android:keepScreenOn="true" />
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignParentBottom="true"
+                                    android:layout_centerHorizontal="true">
+
+                                    <ImageView
+                                        android:id="@+id/startRecordBtn"
+                                        android:layout_width="@dimen/dp_36"
+                                        android:layout_height="@dimen/dp_36"
+                                        android:layout_alignTop="@+id/startRecordBtn"
+                                        android:layout_marginBottom="@dimen/dp_10"
+                                        android:onClick="@{viewModel.startOrStopRecording}"
+                                        android:src="@mipmap/record_default" />
+                                </LinearLayout>
+                            </RelativeLayout>
+
+                            <ScrollView
+                                android:id="@+id/sv_log"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginLeft="@dimen/dp_10"
+                                android:background="@drawable/logs_background"
+                                android:scrollbars="vertical">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:id="@+id/tvlog"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:layout_margin="@dimen/dp_6"
+                                        android:textColor="@color/color_4d4d4d"
+                                        android:textSize="@dimen/sp_10" />
+                                </LinearLayout>
+                            </ScrollView>
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fab"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|top"
+                    android:layout_marginTop="@dimen/dp_90"
+                    android:layout_marginEnd="@dimen/dp_0"
+                    android:onClick="@{viewModel.openQR}"
+                    android:src="@mipmap/qr"
+                    app:backgroundTint="@color/transparent"
+                    app:borderWidth="@dimen/dp_0"
+                    app:elevation="@dimen/dp_0"
+                    app:maxImageSize="@dimen/dp_56" />
+            </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+
+        </LinearLayout>
+    </LinearLayout>
+</layout>
