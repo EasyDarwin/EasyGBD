@@ -1,1 +1,1 @@
-README
+EasyGBD Linux_x64°æ±¾¿â
