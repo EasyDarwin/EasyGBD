@@ -1,9 +1,0 @@
-<resources>
-    <string name="app_name">EasyGBD</string>
-    <string name="version">1.3</string>
-    <string name="stream_stat" formatted="false">编码帧率：%d，码率：%dkbps</string>
-    <string name="camera">摄像头</string>
-    <string name="video_uploading_in_background">后台采集视频中</string>
-
-    <string name="info_desc"></string>
-</resources>
