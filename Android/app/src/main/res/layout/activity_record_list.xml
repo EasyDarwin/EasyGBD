@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="mRecordListViewModel"
+            type="com.easygbs.easygbd.viewmodel.activity.RecordListViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#d9f4eb"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/root"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_50"
+            android:background="@drawable/nav_background"
+            android:gravity="center|left">
+
+            <ImageView
+                android:layout_width="@dimen/dp_18"
+                android:layout_height="@dimen/dp_18"
+                android:layout_marginLeft="@dimen/dp_10"
+                android:onClick="@{mRecordListViewModel.back}"
+                android:src="@mipmap/ic_back" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginRight="@dimen/dp_28"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="@dimen/dp_100"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="录像文件"
+                    android:textSize="@dimen/sp_16" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rcvRecording"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/dp_2"
+                android:layout_marginRight="@dimen/dp_2" />
+        </LinearLayout>
+
+    </LinearLayout>
+</layout>

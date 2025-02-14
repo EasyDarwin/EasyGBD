@@ -1,0 +1,76 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <import type="android.view.View" />
+        <variable
+            name="viewModel"
+            type="com.easygbs.easygbd.viewmodel.fragment.RecordViewModel" />
+    </data>
+
+    <RelativeLayout
+        android:id="@+id/llroot"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#413F3F">
+
+        <TextureView
+            android:id="@+id/tvcamera"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_24"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="@dimen/dp_10">
+
+            <ImageView
+                android:layout_width="@dimen/dp_20"
+                android:layout_height="@dimen/dp_20"
+                android:layout_alignParentBottom="true"
+                android:layout_marginLeft="@dimen/dp_20"
+                android:onClick="@{viewModel.back}"
+                android:src="@mipmap/record_close" />
+
+            <ImageView
+                android:layout_width="@dimen/dp_20"
+                android:layout_height="@dimen/dp_20"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginRight="@dimen/dp_20"
+                android:onClick="@{viewModel.openRecordPath}"
+                android:src="@mipmap/open_record" />
+
+        </RelativeLayout>
+
+
+        <!-- 设置底部 RelativeLayout -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_100"
+            android:layout_alignParentBottom="true"
+            android:background="#000000">
+
+            <ImageView
+                android:id="@+id/startRecordBtn"
+                android:layout_width="@dimen/dp_64"
+                android:layout_height="@dimen/dp_64"
+                android:layout_centerInParent="true"
+                android:onClick="@{viewModel.startOrStopRecording}"
+                android:src="@mipmap/record_default" />
+
+            <ImageView
+                android:id="@+id/switchCameraBtn"
+                android:layout_width="@dimen/dp_24"
+                android:layout_height="@dimen/dp_24"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/dp_80"
+                android:layout_toRightOf="@+id/startRecordBtn"
+                android:onClick="@{viewModel.switchCamera}"
+                android:src="@mipmap/switch_camera" />
+
+        </RelativeLayout>
+
+
+    </RelativeLayout>
+</layout>

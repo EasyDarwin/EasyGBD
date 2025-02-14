@@ -1,0 +1,93 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.easygbs.easygbd.viewmodel.fragment.AboutViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FFF"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/llroot"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@mipmap/ic_bg"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_40"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="@dimen/dp_40"
+                    android:layout_height="match_parent"
+                    android:gravity="center|left"
+                    android:onClick="@{viewModel.back}"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="@dimen/dp_18"
+                        android:layout_height="@dimen/dp_18"
+                        android:background="@mipmap/ic_back"
+                        android:layout_marginLeft="@dimen/dp_20"
+                        android:onClick="@{viewModel.back}" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="@dimen/dp_20"
+                    android:gravity="center"
+                    android:text="关于EasyGBD"
+                    android:textColor="@color/color_1a1a1a"
+                    android:textSize="@dimen/sp_18" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/dp_50"
+                android:layout_marginRight="@dimen/dp_50"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dp_290"
+                    android:layout_marginTop="@dimen/dp_50"
+                    android:background="@mipmap/ic_logo"
+                    android:gravity="center|bottom"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="EasyGBD"
+                        android:textColor="@color/color_19b396"
+                        android:textSize="@dimen/sp_20"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvver"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/dp_10"
+                        android:gravity="center"
+                        android:textColor="@color/color_636877"
+                        android:textSize="@dimen/sp_10"
+                        android:textStyle="normal" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</layout>

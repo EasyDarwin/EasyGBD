@@ -1,0 +1,728 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.easygbs.easygbd.viewmodel.fragment.StreamingSettingsViewModel" />
+
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/dp_15"
+            android:layout_marginRight="@dimen/dp_15"
+            android:background="@color/white"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_35"
+                android:layout_marginTop="@dimen/dp_10"
+                android:gravity="center|left"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/llvideosetall"
+                    android:layout_width="@dimen/dp_18"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:id="@+id/llvideoset"
+                        android:layout_width="@dimen/dp_18"
+                        android:layout_height="@dimen/dp_18"
+                        android:background="@mipmap/ic_selected"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/ivvideoset"
+                            android:layout_width="@dimen/dp_10"
+                            android:layout_height="@dimen/dp_8"
+                            android:background="@mipmap/ic_whiteright"></ImageView>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/dp_15"
+                    android:gravity="center"
+                    android:text="视频设置"
+                    android:textColor="@color/color_1a1a1a"
+                    android:textSize="@dimen/sp_14" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_35"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="摄像头"
+                    android:textColor="@color/color_1a1a1a"
+                    android:textSize="@dimen/sp_14" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/dp_15"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/llcamera"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:onClick="@{viewModel::camera}"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tvcamera"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center|left"
+                            android:text="后置相机"
+                            android:textColor="@color/color_666666"
+                            android:textSize="@dimen/sp_14" />
+
+                        <ImageView
+                            android:id="@+id/ivcameraarrow"
+                            android:layout_width="@dimen/dp_10"
+                            android:layout_height="@dimen/dp_10"
+                            android:background="@mipmap/ic_downarrow" />
+                    </LinearLayout>
+
+                    <include layout="@layout/underline" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_35"
+                android:layout_marginTop="@dimen/dp_3"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="@dimen/dp_30"
+                        android:layout_height="match_parent"
+                        android:gravity="left|center"
+                        android:text="编码"
+                        android:textColor="@color/color_1a1a1a"
+                        android:textSize="@dimen/sp_14" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="@dimen/dp_30"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:id="@+id/llvideocode"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:onClick="@{viewModel::videocode}"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/tvvideocode"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:gravity="center|left"
+                                android:textColor="@color/color_666666"
+                                android:textSize="@dimen/sp_14" />
+
+                            <ImageView
+                                android:id="@+id/ivvideocodearrow"
+                                android:layout_width="@dimen/dp_10"
+                                android:layout_height="@dimen/dp_10"
+                                android:background="@mipmap/ic_downarrow" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/dp_1"
+                            android:background="@color/color_e0e0e0" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/dp_20"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="分辨率"
+                        android:textColor="@color/color_1a1a1a"
+                        android:textSize="@dimen/sp_14" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="@dimen/dp_16"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:id="@+id/llresolution"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:onClick="@{viewModel::resolution}"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/tvresolution"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:gravity="center|left"
+                                android:textColor="@color/color_666666"
+                                android:textSize="@dimen/sp_12" />
+
+                            <ImageView
+                                android:id="@+id/ivresolutionarrow"
+                                android:layout_width="@dimen/dp_10"
+                                android:layout_height="@dimen/dp_10"
+                                android:background="@mipmap/ic_downarrow" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/dp_1"
+                            android:background="@color/color_e0e0e0" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_35"
+                android:layout_marginTop="@dimen/dp_3"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="@dimen/dp_45"
+                        android:layout_height="match_parent"
+                        android:gravity="left|center"
+                        android:text="帧率"
+                        android:textColor="@color/color_1a1a1a"
+                        android:textSize="@dimen/sp_14" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="@dimen/dp_16"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:id="@+id/llframerate"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:onClick="@{viewModel::framerate}"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/tvframerate"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:gravity="center|left"
+                                android:textColor="@color/color_666666"
+                                android:textSize="@dimen/sp_14" />
+
+                            <ImageView
+                                android:id="@+id/ivframeratearrow"
+                                android:layout_width="@dimen/dp_10"
+                                android:layout_height="@dimen/dp_10"
+                                android:background="@mipmap/ic_downarrow" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/dp_1"
+                            android:background="@color/color_e0e0e0" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/dp_20"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="码率"
+                        android:textColor="@color/color_1a1a1a"
+                        android:textSize="@dimen/sp_14" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="@dimen/dp_30"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:id="@+id/llvideocoderate"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:onClick="@{viewModel::videocoderate}"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/tvvideocoderate"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:gravity="center|left"
+                                android:textColor="@color/color_666666"
+                                android:textSize="@dimen/sp_14" />
+
+                            <ImageView
+                                android:id="@+id/ivcoderatearrow"
+                                android:layout_width="@dimen/dp_10"
+                                android:layout_height="@dimen/dp_10"
+                                android:background="@mipmap/ic_downarrow" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/dp_1"
+                            android:background="@color/color_e0e0e0" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_35"
+                android:layout_marginTop="@dimen/dp_30"
+                android:gravity="center|left"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/llaudiosetall"
+                    android:layout_width="@dimen/dp_18"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:id="@+id/llaudioset"
+                        android:layout_width="@dimen/dp_18"
+                        android:layout_height="@dimen/dp_18"
+                        android:background="@mipmap/ic_notselected"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/ivaudioset"
+                            android:layout_width="@dimen/dp_10"
+                            android:layout_height="@dimen/dp_8"
+                            android:background="@mipmap/ic_whiteright"></ImageView>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/dp_15"
+                    android:gravity="center"
+                    android:text="音频设置"
+                    android:textColor="@color/color_1a1a1a"
+                    android:textSize="@dimen/sp_14" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_35"
+                android:layout_marginTop="@dimen/dp_3"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="编码"
+                        android:textColor="@color/color_1a1a1a"
+                        android:textSize="@dimen/sp_14" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="@dimen/dp_30"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:id="@+id/llaudiocode"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:onClick="@{viewModel::audiocode}"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/tvaudiocode"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:gravity="center|left"
+                                android:textColor="@color/color_666666"
+                                android:textSize="@dimen/sp_14" />
+
+                            <ImageView
+                                android:id="@+id/ivaudiocodearrow"
+                                android:layout_width="@dimen/dp_10"
+                                android:layout_height="@dimen/dp_10"
+                                android:background="@mipmap/ic_downarrow" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/dp_1"
+                            android:background="@color/color_e0e0e0" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/dp_20"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="采样率"
+                        android:textColor="@color/color_1a1a1a"
+                        android:textSize="@dimen/sp_14" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="@dimen/dp_16"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:id="@+id/llsamplingrate"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:onClick="@{viewModel::samplingrate}"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/tvsamplingrate"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:gravity="center|left"
+                                android:textColor="@color/color_666666"
+                                android:textSize="@dimen/sp_14" />
+
+                            <ImageView
+                                android:id="@+id/ivsamplingratearrow"
+                                android:layout_width="@dimen/dp_10"
+                                android:layout_height="@dimen/dp_10"
+                                android:background="@mipmap/ic_downarrow" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/dp_1"
+                            android:background="@color/color_e0e0e0" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_35"
+                android:layout_marginTop="@dimen/dp_3"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="声道"
+                        android:textColor="@color/color_1a1a1a"
+                        android:textSize="@dimen/sp_14" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="@dimen/dp_30"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:id="@+id/llaudiochannel"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="horizontal"
+                            android:onClick="@{viewModel::audiochannel}"
+                            >
+
+                            <TextView
+                                android:id="@+id/tvaudiochannel"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:gravity="center|left"
+                                android:text="@{viewModel.audiochannelObservableField}"
+                                android:textColor="@color/color_666666"
+                                android:textSize="@dimen/sp_14" />
+
+                            <ImageView
+                                android:id="@+id/ivaudiochannelarrow"
+                                android:layout_width="@dimen/dp_10"
+                                android:layout_height="@dimen/dp_10"
+                                android:background="@mipmap/ic_downarrow" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/dp_1"
+                            android:background="@color/color_e0e0e0" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/dp_20"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="码率"
+                        android:textColor="@color/color_1a1a1a"
+                        android:textSize="@dimen/sp_14" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="@dimen/dp_30"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:id="@+id/llaudiocoderate"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:onClick="@{viewModel::audiocoderate}"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/tvaudiocoderate"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:gravity="center|left"
+                                android:text="100"
+                                android:textColor="@color/color_666666"
+                                android:textSize="@dimen/sp_14" />
+
+                            <ImageView
+                                android:id="@+id/ivaudiocoderatearrow"
+                                android:layout_width="@dimen/dp_10"
+                                android:layout_height="@dimen/dp_10"
+                                android:background="@mipmap/ic_downarrow" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/dp_1"
+                            android:background="@color/color_e0e0e0" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_35"
+                android:layout_marginTop="@dimen/dp_30"
+                android:gravity="center|left"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/lllocreportsetall"
+                    android:layout_width="@dimen/dp_18"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/lllocreportset"
+                        android:layout_width="@dimen/dp_18"
+                        android:layout_height="@dimen/dp_18"
+                        android:background="@mipmap/ic_notselected"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/ivlocreportset"
+                            android:layout_width="@dimen/dp_10"
+                            android:layout_height="@dimen/dp_8"
+                            android:background="@mipmap/ic_whiteright"></ImageView>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/dp_15"
+                    android:gravity="center"
+                    android:text="位置上报设置"
+                    android:textColor="@color/color_1a1a1a"
+                    android:textSize="@dimen/sp_14" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_35"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="频率"
+                    android:textColor="@color/color_1a1a1a"
+                    android:textSize="@dimen/sp_14" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/dp_30"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/lllocationfrequency"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:onClick="@{viewModel::locationfrequency}"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tvlocationfrequency"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center|left"
+                            android:textColor="@color/color_666666"
+                            android:textSize="@dimen/sp_14" />
+
+                        <ImageView
+                            android:id="@+id/ivlocationfrequencyarrow"
+                            android:layout_width="@dimen/dp_10"
+                            android:layout_height="@dimen/dp_10"
+                            android:background="@mipmap/ic_downarrow" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp_1"
+                        android:background="@color/color_e0e0e0" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvsave"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_44"
+                android:layout_marginLeft="@dimen/dp_7"
+                android:layout_marginTop="@dimen/dp_60"
+                android:layout_marginRight="@dimen/dp_7"
+                android:layout_marginBottom="@dimen/dp_30"
+                android:background="@drawable/bg_rounded_53c3a3"
+                android:gravity="center"
+                android:onClick="@{viewModel::save}"
+                android:text="保存"
+                android:textColor="@color/white"
+                android:textSize="@dimen/sp_16" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+
+    </RelativeLayout>
+</layout>

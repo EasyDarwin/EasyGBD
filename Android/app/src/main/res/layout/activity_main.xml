@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="mMainViewModel"
+            type="com.easygbs.easygbd.viewmodel.activity.MainViewModel" />
+    </data>
+
+    <LinearLayout
+        android:id="@+id/ll_root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_gradient_d9f4eb"
+        android:gravity="center|top"
+        android:orientation="vertical">
+        <!--
+        android:background="@mipmap/ic_nav"
+        -->
+
+        <LinearLayout
+            android:id="@+id/lltop"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_50"
+            android:background="@drawable/nav_background"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/lltopfrist"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/dp_20"
+                android:layout_weight="1"
+                android:onClick="@{mMainViewModel.topfirst}"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvtopfrist"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="基础设置"
+                    android:textColor="@color/color_545a58"
+                    android:textSize="@dimen/sp_15"
+                    android:textStyle="bold" />
+
+                <View
+                    android:id="@+id/vtopfirst"
+                    android:layout_width="match_parent"
+                    android:layout_height="2.5dp"
+                    android:layout_marginTop="-2.5dp"
+                    android:background="@color/color_53c3a3" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/lltopsecond"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/dp_20"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:onClick="@{mMainViewModel.topsecond}"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvtopsecond"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="流媒体设置"
+                    android:textColor="@color/color_1a1a1a"
+                    android:textSize="@dimen/sp_14"
+                    android:textStyle="normal" />
+
+                <View
+                    android:id="@+id/vtopsecond"
+                    android:layout_width="match_parent"
+                    android:layout_height="2.5dp"
+                    android:layout_marginTop="-2.5dp"
+                    android:background="@color/color_53c3a3"
+                    android:visibility="invisible" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/lltopthird"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/dp_20"
+                android:layout_marginRight="@dimen/dp_20"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:onClick="@{mMainViewModel.topthird}"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvtopthird"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="通道设置"
+                    android:textColor="@color/color_1a1a1a"
+                    android:textSize="@dimen/sp_14"
+                    android:textStyle="normal" />
+
+                <View
+                    android:id="@+id/vtopthird"
+                    android:layout_width="match_parent"
+                    android:layout_height="2.5dp"
+                    android:layout_marginTop="-2.5dp"
+                    android:background="@color/color_53c3a3"
+                    android:visibility="invisible" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llcontent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#000000"
+            android:orientation="vertical" />
+
+
+        <LinearLayout
+            android:id="@+id/underline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <include layout="@layout/underline2" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/llbottom"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_50"
+            android:background="#f8fafd"
+            android:orientation="horizontal"
+            android:visibility="@{mMainViewModel.isshowbottomObservableField==true?View.VISIBLE:View.GONE}">
+
+            <LinearLayout
+                android:id="@+id/llbottomfrist"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/dp_20"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:onClick="@{mMainViewModel.bf}"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/ivbottomfirst"
+                    android:layout_width="@dimen/dp_22"
+                    android:layout_height="@dimen/dp_22"
+                    android:background="@mipmap/ic_unreg"
+                    android:onClick="@{mMainViewModel.bf}" />
+
+                <TextView
+                    android:id="@+id/tvbottomfirst"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:onClick="@{mMainViewModel.bf}"
+                    android:text="注册"
+                    android:textColor="@color/color_808080"
+                    android:textSize="@dimen/sp_10"
+                    android:textStyle="normal" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llbottomsecond"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/dp_20"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:onClick="@{mMainViewModel.bs}"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/ivbottomsecond"
+                    android:layout_width="@dimen/dp_22"
+                    android:layout_height="@dimen/dp_22"
+                    android:background="@mipmap/ic_notselectrec"
+                    android:onClick="@{mMainViewModel.bs}" />
+
+                <TextView
+                    android:id="@+id/tvbottomsecond"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:onClick="@{mMainViewModel.bs}"
+                    android:text="本地录像"
+                    android:textColor="@color/color_808080"
+                    android:textSize="@dimen/sp_10"
+                    android:textStyle="normal" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llbottomthird"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/dp_20"
+                android:layout_marginRight="@dimen/dp_20"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:onClick="@{mMainViewModel.bt}"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/ivbottomthird"
+                    android:layout_width="@dimen/dp_22"
+                    android:layout_height="@dimen/dp_22"
+                    android:background="@mipmap/ic_notselectabout"
+                    android:onClick="@{mMainViewModel.bt}" />
+
+                <TextView
+                    android:id="@+id/tvbottomthird"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:onClick="@{mMainViewModel.bt}"
+                    android:text="关于"
+                    android:textColor="@color/color_808080"
+                    android:textSize="@dimen/sp_10"
+                    android:textStyle="normal" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</layout>

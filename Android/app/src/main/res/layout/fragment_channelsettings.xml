@@ -1,0 +1,136 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.easygbs.easygbd.viewmodel.fragment.ChannelSettingsViewModel" />
+
+    </data>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#F3F5F9">
+
+        <LinearLayout
+            android:id="@+id/_ScrollView"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_420"
+            android:background="#F3F5F9"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/llroot"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/white"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dp_40"
+                    android:layout_marginLeft="@dimen/dp_10"
+                    android:layout_marginTop="@dimen/dp_15"
+
+                    android:layout_marginRight="@dimen/dp_10"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="@dimen/dp_50"
+                        android:layout_height="match_parent"
+                        android:gravity="center|left"
+                        android:text="序号"
+                        android:textColor="@color/color_1a1a1a"
+                        android:textSize="@dimen/sp_16" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="@dimen/dp_8"
+                        android:layout_weight="1"
+                        android:gravity="center|left"
+                        android:text="通道ID"
+                        android:textColor="@color/color_1a1a1a"
+                        android:textSize="@dimen/sp_16" />
+
+                    <TextView
+                        android:layout_width="@dimen/dp_90"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="@dimen/dp_8"
+                        android:gravity="center|left"
+                        android:text="通道名称"
+                        android:textColor="@color/color_1a1a1a"
+                        android:textSize="@dimen/sp_16" />
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/dp_10"
+                    android:layout_marginRight="@dimen/dp_10"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/lllist"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvlist"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/_ScrollView"
+            android:layout_margin="@dimen/dp_10"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvadd"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_44"
+                android:layout_marginTop="@dimen/dp_10"
+                android:background="@drawable/bg_rounded_add"
+                android:gravity="center"
+                android:onClick="@{viewModel::add}"
+                android:text="添加"
+                android:textColor="#333333"
+                android:textSize="@dimen/sp_16" />
+
+            <TextView
+                android:id="@+id/tvsave"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_44"
+                android:layout_marginTop="@dimen/dp_10"
+                android:layout_marginBottom="@dimen/dp_10"
+                android:layout_weight="1"
+                android:background="@drawable/bg_rounded_53c3a3"
+                android:gravity="center"
+                android:onClick="@{viewModel::save}"
+                android:text="保存"
+                android:textColor="@color/white"
+                android:textSize="@dimen/sp_16" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentBottom="true" />
+    </RelativeLayout>
+</layout>

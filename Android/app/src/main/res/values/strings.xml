@@ -1,0 +1,104 @@
+<resources>
+    <string name="app_name">EasyGBD</string>
+    <string name="video_uploading_in_background">后台采集视频中</string>
+    <string name="text_request_permissions">需要 Camera 和读写 SD 卡的权限</string>
+    <string-array name="verarr">
+        <item>2016</item>
+        <item>2022</item>
+    </string-array>
+
+    <string-array name="tranproarr">
+        <item>UDP</item>
+        <item>TCP</item>
+    </string-array>
+
+    <string-array name="loglevelarr">
+        <item>DEBUG</item>
+        <item>INFO</item>
+        <item>WARNING</item>
+        <item>ERROR</item>
+    </string-array>
+
+    <string-array name="cameraarr">
+        <item>后置相机</item>
+        <item>前置相机</item>
+    </string-array>
+
+    <string-array name="videocodearr">
+        <item>H264</item>
+        <item>H265</item>
+    </string-array>
+
+    <string-array name="resolutionarr">
+        <item>1920*1080</item>
+        <item>1280*960</item>
+        <item>1280*720</item>
+    </string-array>
+
+    <string-array name="frameratearr">
+        <item>25</item>
+        <item>22</item>
+        <item>20</item>
+        <item>18</item>
+        <item>16</item>
+        <item>15</item>
+        <item>12</item>
+        <item>10</item>
+    </string-array>
+
+    <string-array name="videocoderatearr">
+        <item>8192</item>
+        <item>6144</item>
+        <item>4096</item>
+        <item>3072</item>
+        <item>2024</item>
+        <item>1024</item>
+        <item>512</item>
+        <item>256</item>
+    </string-array>
+
+    <string-array name="audiocodearr">
+        <item>G711A</item>
+        <item>G711U</item>
+        <item>AAC</item>
+    </string-array>
+
+    <string-array name="samplingratearr">
+        <item>8000</item>
+        <item>11025</item>
+        <!--
+        <item>12000</item>
+        <item>16000</item>
+        <item>22050</item>
+        <item>24000</item>
+        <item>32000</item>
+        <item>44100</item>
+        <item>48000</item>
+        -->
+    </string-array>
+
+    <string-array name="audiochannelarr">
+        <item>单声道</item>
+        <item>立体声道</item>
+    </string-array>
+
+    <string-array name="audiocoderatearr">
+        <item>64</item>
+        <item>32</item>
+        <item>16</item>
+    </string-array>
+
+    <string-array name="locationfrequencyarr">
+        <item>1秒</item>
+        <item>2秒</item>
+        <item>3秒</item>
+        <item>4秒</item>
+        <item>5秒</item>
+        <item>6秒</item>
+        <item>7秒</item>
+        <item>8秒</item>
+        <item>9秒</item>
+        <item>10秒</item>
+    </string-array>
+
+</resources>
