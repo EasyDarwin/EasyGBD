@@ -5,7 +5,7 @@ EasyGBD是一套国标GB/T 28181设备端功能组件，EasyGBD是GB/T 28181 Dev
 
 ### 调用方法
 
-- **EasyGBD-Android**：Android安卓GB28181，采集安卓手机前/后摄像头、麦克风音视频注册到GB28181流媒体服务器，直接体验安卓效果：http://app.tsingsee.com/easygbd；
+- **EasyGBD-Android**：Android安卓GB28181，采集安卓手机前/后摄像头、麦克风音视频注册到GB28181流媒体服务器，直接体验安卓效果：http://app.tsingsee.com/easygbd
 
 		
 ### 支持
