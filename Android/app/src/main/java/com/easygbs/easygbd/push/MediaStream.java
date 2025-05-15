@@ -1201,7 +1201,8 @@ public class MediaStream {
 
                         mAudioTrack.write(byteBuffer, 0, byteBuffer.length);
 
-                        saveToFile(byteBuffer, "talk.pcm");
+//                        saveToFile(byteBuffer, "talk.pcm");
+
 
                         frameInfo = null;
                     }

@@ -7,6 +7,10 @@ import android.util.Log;
 import org.easydarwin.push.Pusher;
 import org.easydarwin.util.SIP;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 public class Device implements Pusher {
     private static String TAG = Device.class.getSimpleName();
     private static String ip;
@@ -105,7 +109,9 @@ public class Device implements Pusher {
             SIP.GB28181_CHANNEL_INFO_T item = sip.getList().get(i);
 
             addChannelInfo(i, item.getIndexCode(), item.getName(), item.getManufacturer(), item.getModel(), item.getParentId(), item.getOwner(), item.getCivilCode(), item.getAddress(), item.getLongitude(), item.getLatitude());
+            Log.i(TAG, "执行完成");
         }
+
 
         for (int i = 0; i < size; i++) {
             int setVideoFormatRe = -1;
@@ -194,7 +200,34 @@ public class Device implements Pusher {
                 fi.length = paramLength;
                 fi.audio = true;
                 callback.onSourceCallBack(fi);
+
+                saveToFile(param, "audio.data");
+
             }
+        }
+    }
+
+    private static void saveToFile(byte[] buffer, String fileName) {
+        try {
+            File file = new File(context.getExternalFilesDir(null), fileName);
+
+            if (!file.exists()) {
+                try {
+                    boolean created = file.createNewFile();
+                    if (!created) {
+                        Log.e("FileOutput", "Failed to create file.");
+                        return;
+                    }
+                } catch (IOException e) {
+                    Log.e("FileOutput", "Error creating file: " + e.getMessage());
+                    return;
+                }
+            }
+            FileOutputStream fos = new FileOutputStream(file, true);
+            fos.write(buffer, 0, buffer.length);
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -333,16 +366,7 @@ public class Device implements Pusher {
 
         @Override
         public String toString() {
-            return "MediaInfo{" +
-                    "videoCodec=" + videoCodec +
-                    ", fps=" + fps +
-                    ", audioCodec=" + audioCodec +
-                    ", sample=" + sample +
-                    ", channel=" + channel +
-                    ", bitPerSample=" + bitPerSample +
-                    ", spsLen=" + spsLen +
-                    ", ppsLen=" + ppsLen +
-                    '}';
+            return "MediaInfo{" + "videoCodec=" + videoCodec + ", fps=" + fps + ", audioCodec=" + audioCodec + ", sample=" + sample + ", channel=" + channel + ", bitPerSample=" + bitPerSample + ", spsLen=" + spsLen + ", ppsLen=" + ppsLen + '}';
         }
     }
 }

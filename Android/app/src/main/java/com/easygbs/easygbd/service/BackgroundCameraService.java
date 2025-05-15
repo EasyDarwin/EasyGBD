@@ -1,4 +1,5 @@
 package com.easygbs.easygbd.service;
+
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -13,8 +14,11 @@ import android.provider.Settings;
 import android.view.Gravity;
 import android.view.TextureView;
 import android.view.WindowManager;
+
 import com.easygbs.easygbd.application.App;
+
 import androidx.core.app.NotificationCompat;
+
 import com.easygbs.easygbd.R;
 import com.easygbs.easygbd.push.*;
 import com.easygbs.easygbd.activity.*;
@@ -60,53 +64,21 @@ public class BackgroundCameraService extends Service implements TextureView.Surf
 
     }
 
-    public void activePreview() {
-        mMediaStream.stopPreview();
-        mPenddingStartPreview = true;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (Settings.canDrawOverlays(this)) {
-                WindowManager.LayoutParams param = new WindowManager.LayoutParams();
-                param.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    param.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
-                }
-
-                param.format = PixelFormat.TRANSLUCENT;
-                param.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-                param.alpha = 1.0f;
-                param.gravity = Gravity.LEFT | Gravity.TOP;
-                param.width = 1;
-                param.height = 1;
-
-                mWindowManager.addView(mOutComeVideoView, param);
-            }
-        } else {
-            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams(1, 1,
-                    WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
-                    WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
-                    PixelFormat.TRANSLUCENT);
-            layoutParams.gravity = Gravity.LEFT | Gravity.TOP;
-            mWindowManager.addView(mOutComeVideoView, layoutParams);
-        }
-    }
-
     private void backGroundNotificate() {
-        Intent notificationIntent = new Intent(this,MainActivity.class);
+        Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-       Notification notification = new NotificationCompat.Builder(this, App.CHANNEL_CAMERA)
-                        .setContentTitle(getString(R.string.app_name))
-                        .setContentText(getString(R.string.video_uploading_in_background))
-                        .setSmallIcon(R.drawable.ic_stat_camera)
-                        .setContentIntent(pendingIntent)
-                        .build();
+        Notification notification = new NotificationCompat.Builder(this, App.CHANNEL_CAMERA)
+                .setContentTitle(getString(R.string.app_name))
+                .setContentText(getString(R.string.video_uploading_in_background))
+                .setSmallIcon(R.drawable.ic_stat_camera)
+                .setContentIntent(pendingIntent)
+                .build();
 
         startForeground(NOTIFICATION_ID, notification);
     }
 
-     public void inActivePreview() {
-                                                                    if (mOutComeVideoView != null) {
+    public void inActivePreview() {
+        if (mOutComeVideoView != null) {
             if (mOutComeVideoView.getParent() != null) {
                 mWindowManager.removeView(mOutComeVideoView);
             }

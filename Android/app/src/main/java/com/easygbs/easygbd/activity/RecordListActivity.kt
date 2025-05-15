@@ -1,18 +1,16 @@
-package com.easygbs.easygbd.activity;
+package com.easygbs.easygbd.activity
 
-import Mp4Adapter
+import ViewPagerAdapter
 import android.app.Dialog
 import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.util.DisplayMetrics
-import android.util.Log
-import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.ImageView
 import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.viewpager2.widget.ViewPager2
 import com.easygbs.easygbd.R
 import com.easygbs.easygbd.StretchVideoView
 import com.easygbs.easygbd.application.App
@@ -20,94 +18,136 @@ import com.easygbs.easygbd.databinding.ActivityRecordListBinding
 import com.easygbs.easygbd.util.ScrUtil
 import com.easygbs.easygbd.viewmodel.activity.RecordListViewModel
 import com.gyf.immersionbar.ImmersionBar
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
-
 class RecordListActivity : BaseActivity() {
-    var TAG: String = RecordListActivity::class.java.getSimpleName()
-
-    lateinit var mRecordListViewModel: RecordListViewModel
-    var mActivityRecordListBinding: ActivityRecordListBinding? = null
+    private val TAG = RecordListActivity::class.java.simpleName
+    private lateinit var mRecordListViewModel: RecordListViewModel
+    private lateinit var mActivityRecordListBinding: ActivityRecordListBinding
+    lateinit var mViewPagerAdapter: ViewPagerAdapter
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun init() {
+        // 初始化布局绑定
         mActivityRecordListBinding =
-            DataBindingUtil.setContentView(this@RecordListActivity, R.layout.activity_record_list)
+            DataBindingUtil.setContentView(this, R.layout.activity_record_list)
 
+        // 初始化 ViewModel
         mRecordListViewModel = RecordListViewModel(App.getInstance())
-        mRecordListViewModel.setRecordListActivity(this@RecordListActivity)
+        mRecordListViewModel.setRecordListActivity(this)
 
-        mActivityRecordListBinding!!.mRecordListViewModel = mRecordListViewModel
+        mActivityRecordListBinding.mRecordListViewModel = mRecordListViewModel
 
-        ImmersionBar.with(this).statusBarDarkFont(true).init()
+        // 设置状态栏样式
+        ImmersionBar.with(this)
+            .statusBarColor(R.color.d9f4eb) // 设置状态栏背景颜色为白色
+            .statusBarDarkFont(true)
+            .init()
 
-        val layoutParams =
-            mActivityRecordListBinding!!.root.layoutParams as LinearLayout.LayoutParams
-        layoutParams.topMargin = ScrUtil.getStatusBarHeight(this@RecordListActivity)
-        mActivityRecordListBinding!!.root.layoutParams = layoutParams
+        // 设置根布局顶部边距适配状态栏高度
+        mActivityRecordListBinding.root.layoutParams =
+            (mActivityRecordListBinding.root.layoutParams as ViewGroup.MarginLayoutParams).apply {
+                topMargin = ScrUtil.getStatusBarHeight(this@RecordListActivity)
+            }
 
-        loadRecordFiles()
+        // 加载录像文件列表
+        loadRecordFilesAsync()
 
     }
 
-    private fun loadRecordFiles() {
-        // 获取 MP4 文件列表
-        val mp4Files = getMp4FilesInFilesDir()
-        // 设置适配器
-        mActivityRecordListBinding!!.rcvRecording.layoutManager =
-            GridLayoutManager(this@RecordListActivity, 3)
+    /**
+     * 异步加载视频文件
+     */
+    private fun loadRecordFilesAsync() {
+        // 使用 CoroutineScope 在主线程中启动协程
+        CoroutineScope(Dispatchers.Main).launch {
+            // 显示加载中的 UI
+//            showLoading()
 
-        var mMp4Adapter = Mp4Adapter(this, mp4Files) { file ->
-            // 点击播放视频
-            showVideoDialog(file)
+            // 在 IO 线程中加载视频文件
+            val mp4Files = withContext(Dispatchers.IO) {
+                getMp4FilesInFilesDir()
+            }
+
+            // 分页处理：每页 18 个视频
+            val videoPages = mp4Files.chunked(18)
+
+            // 更新 UI
+            mViewPagerAdapter = setupViewPager(videoPages)
+//            hideLoading()
         }
-        mActivityRecordListBinding!!.rcvRecording.adapter = mMp4Adapter
     }
+
+
+    /**
+     * 设置 ViewPager2
+     */
+    private fun setupViewPager(videoPages: List<List<File>>): ViewPagerAdapter {
+        val adapter = ViewPagerAdapter(this@RecordListActivity,
+            videoPages,
+            mActivityRecordListBinding.llRoot,
+            { file ->
+                showVideoDialog(file)
+            },
+            {
+                updatePageUI()
+            }
+        )
+
+        val viewPager = mActivityRecordListBinding.rcvRecording
+        viewPager.adapter = adapter
+        viewPager.orientation = ViewPager2.ORIENTATION_VERTICAL
+        return adapter
+    }
+
 
     private fun getMp4FilesInFilesDir(): List<File> {
-        // 获取应用内部 files 目录
+        // 获取应用内部的 files 目录
         val filesDir = File(getExternalFilesDir(null), "easygbd")
-        // 过滤出扩展名为 .mp4 的文件
+
+        // 过滤出扩展名为 .mp4 的文件，并按文件最后修改时间倒序排列
         return filesDir.listFiles { _, name ->
-            name.endsWith(".mp4", ignoreCase = true)
-        }?.toList() ?: emptyList()
+            name.endsWith(".mp4", true)
+        }?.sortedByDescending { it.lastModified() } ?: emptyList()
+
     }
 
     private fun showVideoDialog(file: File) {
         // 创建无边距的 Dialog
-        val dialog = Dialog(this, R.style.FullWidthDialog)
-        dialog.setContentView(R.layout.dialog_video_player)
-        dialog.setCancelable(false)
+        val dialog = Dialog(this, R.style.FullWidthDialog).apply {
+            setContentView(R.layout.dialog_video_player)
+            setCancelable(false)
+        }
 
         // 获取屏幕宽度
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
-        val screenWidth = displayMetrics.widthPixels
 
-        // 设置 Dialog 的宽高
-        val window = dialog.window
-        window?.setLayout(
+        // 设置 Dialog 宽高
+        dialog.window?.setLayout(
             ViewGroup.LayoutParams.MATCH_PARENT, // 宽度占满屏幕
-            dpToPx(this, 280)                   // 高度：200dp
+            dpToPx(this, 280) // 高度 280dp
         )
 
         // 获取 VideoView
         val videoView: StretchVideoView = dialog.findViewById(R.id.videoView)
-
-        // 设置 VideoView 播放路径
         videoView.setVideoURI(Uri.fromFile(file))
-        videoView.setOnPreparedListener {
-            videoView.start() // 视频准备好后自动播放
+        videoView.setOnPreparedListener { videoView.start() }
+
+        // 关闭按钮
+        dialog.findViewById<ImageView>(R.id.closeRecordBtn).setOnClickListener {
+            dialog.dismiss()
         }
 
-        val closeRecordBtn: ImageView = dialog.findViewById(R.id.closeRecordBtn)
-
-        closeRecordBtn.setOnClickListener(View.OnClickListener {
-            dialog.cancel()
-        })
-
-        // 显示 Dialog
         dialog.show()
+    }
+
+    private fun updatePageUI() {
+        loadRecordFilesAsync()
     }
 
     private fun dpToPx(context: Context, dp: Int): Int {
@@ -115,8 +155,9 @@ class RecordListActivity : BaseActivity() {
         return (dp * density).toInt()
     }
 
-    override fun finish() {
-        super.finish()
-    }
 
+//    private fun View.setOnClickListener() {
+//        mViewPagerAdapter.mVideoGridAdapter.allSelection()
+//    }
 }
+

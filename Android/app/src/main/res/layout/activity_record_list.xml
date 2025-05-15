@@ -2,64 +2,126 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
-
     <data>
-
-        <import type="android.view.View" />
-
         <variable
             name="mRecordListViewModel"
             type="com.easygbs.easygbd.viewmodel.activity.RecordListViewModel" />
     </data>
 
     <LinearLayout
+        android:id="@+id/ll_root"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#d9f4eb"
+        android:background="@color/white"
         android:orientation="vertical">
 
         <LinearLayout
-            android:id="@+id/root"
+            android:id="@+id/ll_navbar"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_50"
             android:background="@drawable/nav_background"
             android:gravity="center|left">
 
             <ImageView
+                android:id="@+id/iv_navbar_left"
                 android:layout_width="@dimen/dp_18"
                 android:layout_height="@dimen/dp_18"
                 android:layout_marginLeft="@dimen/dp_10"
                 android:onClick="@{mRecordListViewModel.back}"
                 android:src="@mipmap/ic_back" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginRight="@dimen/dp_28"
-                android:gravity="center">
+            <TextView
+                android:layout_width="@dimen/dp_0"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/dp_10"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="录像文件"
+                android:textColor="@color/black"
+                android:textSize="@dimen/sp_16" />
 
-                <TextView
-                    android:layout_width="@dimen/dp_100"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="录像文件"
-                    android:textSize="@dimen/sp_16" />
-            </LinearLayout>
-
+            <ImageView
+                android:layout_width="@dimen/dp_18"
+                android:layout_height="@dimen/dp_18"
+                android:layout_marginRight="@dimen/dp_10" />
         </LinearLayout>
 
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/rcvRecording"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_0"
+            android:layout_margin="@dimen/dp_3"
+            android:layout_weight="1"
+            android:background="@color/white" />
 
         <LinearLayout
+            android:id="@+id/ll_footer"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/white">
+            android:layout_height="@dimen/dp_48"
+            android:background="#f8fafd"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rcvRecording"
-                android:layout_width="match_parent"
+            <!-- 空白占位符 -->
+            <View
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_marginLeft="@dimen/dp_2"
-                android:layout_marginRight="@dimen/dp_2" />
+                android:layout_weight="1" />
+
+            <!-- 全选按钮 -->
+            <LinearLayout
+                android:id="@+id/ll_select_all"
+                android:layout_width="@dimen/dp_40"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/iv_all_select_btn"
+                    android:layout_width="@dimen/dp_20"
+                    android:layout_height="@dimen/dp_20"
+                    android:src="@mipmap/ic_selete_defalut" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="全选"
+                    android:textSize="@dimen/dp_10" />
+            </LinearLayout>
+
+            <!-- 空白占位符 -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+            <!-- 删除按钮 -->
+            <LinearLayout
+                android:id="@+id/ll_delete_btn"
+                android:layout_width="@dimen/dp_40"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="@dimen/dp_20"
+                    android:layout_height="@dimen/dp_20"
+                    android:src="@mipmap/iv_delete" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="删除"
+                    android:textSize="@dimen/dp_10" />
+            </LinearLayout>
+
+            <!-- 空白占位符 -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
         </LinearLayout>
 
     </LinearLayout>

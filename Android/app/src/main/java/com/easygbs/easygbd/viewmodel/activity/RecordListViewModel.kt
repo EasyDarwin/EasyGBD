@@ -17,10 +17,15 @@ class RecordListViewModel(application: Application) : BaseViewModel(application)
     }
 
     fun back(view: View) {
-        val resultIntent = Intent()
-        resultIntent.putExtra("key", "value") // 将数据放入 Intent
-        mRecordListActivity?.setResult(Constant.RECORD_BACK, resultIntent) // 返回数据，并指示操作成功
-        mRecordListActivity?.finish()
-    }
 
+        if (mRecordListActivity!!.mViewPagerAdapter != null && mRecordListActivity!!.mViewPagerAdapter!!.mVideoGridAdapter!!.isSelectionMode) {
+            mRecordListActivity!!.mViewPagerAdapter!!.mVideoGridAdapter!!.changeSelectionMode()
+            mRecordListActivity!!.mViewPagerAdapter!!.mVideoGridAdapter!!.clearSelection()
+        } else {
+            val resultIntent = Intent()
+            resultIntent.putExtra("key", "value") // 将数据放入 Intent
+            mRecordListActivity?.setResult(Constant.RECORD_BACK, resultIntent) // 返回数据，并指示操作成功
+            mRecordListActivity?.finish()
+        }
+    }
 }
