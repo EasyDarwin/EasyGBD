@@ -9,4 +9,5 @@ public interface Pusher {
     void pushV(int channel, byte[] buffer, int length, int keyframe);
     void pushA(int channel, boolean isAac, byte[] buffer, int length, int nbSamples);
     void setLoLa(int channel, double longitude, double latitude);
+    boolean getPushed();
 }

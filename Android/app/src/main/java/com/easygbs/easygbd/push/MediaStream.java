@@ -111,8 +111,7 @@ public class MediaStream {
      0:Camera.CameraInfo.CAMERA_FACING_BACK
      1:Camera.CameraInfo.CAMERA_FACING_FRONT
      CAMERA_FACING_BACK_UVC
-    */
-    int mCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
+    */ int mCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
     public static final int CAMERA_FACING_BACK_UVC = 2;
     public static final int CAMERA_FACING_BACK_LOOP = -1;
 
@@ -248,8 +247,7 @@ public class MediaStream {
             Camera.getCameraInfo(mCameraId, camInfo);
             int cameraRotationOffset = camInfo.orientation;
 
-            if (mCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT)
-                cameraRotationOffset += 180;
+            if (mCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT) cameraRotationOffset += 180;
 
             int rotate = (360 + cameraRotationOffset - displayRotationDegree) % 360;
             parameters.setRotation(rotate);
@@ -297,8 +295,7 @@ public class MediaStream {
 
             List<String> supportedFocusModes = parameters.getSupportedFocusModes();
 
-            if (supportedFocusModes == null)
-                supportedFocusModes = new ArrayList<>();
+            if (supportedFocusModes == null) supportedFocusModes = new ArrayList<>();
 
             if (supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
                 parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
@@ -324,11 +321,7 @@ public class MediaStream {
 
         uvcCamera = UVCCameraService.liveData.getValue();
         if (uvcCamera != null) {
-            uvcCamera.setPreviewSize(frameWidth,
-                    frameHeight,
-                    1,
-                    30,
-                    UVCCamera.PIXEL_FORMAT_YUV420SP, 1.0f);
+            uvcCamera.setPreviewSize(frameWidth, frameHeight, 1, 30, UVCCamera.PIXEL_FORMAT_YUV420SP, 1.0f);
         }
 
         if (uvcCamera == null) {
@@ -413,13 +406,7 @@ public class MediaStream {
             SWConsumer sw = new SWConsumer(context, mEasyPusher, SPUtil.getBitrateKbps(context), channelid, Constant.Root);
             mVC = new ClippableVideoConsumer(context, sw, frameWidth, frameHeight, SPUtil.getEnableVideoOverlay(context));
         } else {
-            HWConsumer hw = new HWConsumer(context,
-                    mHevc ? MediaFormat.MIMETYPE_VIDEO_HEVC : MediaFormat.MIMETYPE_VIDEO_AVC,
-                    mEasyPusher,
-                    SPUtil.getBitrateKbps(context),
-                    info.mName,
-                    info.mColorFormat,
-                    channelid, Constant.Root);
+            HWConsumer hw = new HWConsumer(context, mHevc ? MediaFormat.MIMETYPE_VIDEO_HEVC : MediaFormat.MIMETYPE_VIDEO_AVC, mEasyPusher, SPUtil.getBitrateKbps(context), info.mName, info.mColorFormat, channelid, Constant.Root);
             mVC = new ClippableVideoConsumer(context, hw, frameWidth, frameHeight, SPUtil.getEnableVideoOverlay(context));
         }
 
@@ -576,14 +563,7 @@ public class MediaStream {
 
         mEasyMuxer = new EasyMuxer(recordPath, mFilePath, durationMillis, mTheRecordStatusListener);
 
-        mRecordVC = new RecordVideoConsumer(
-                context, mHevc ? MediaFormat.MIMETYPE_VIDEO_HEVC : MediaFormat.MIMETYPE_VIDEO_AVC,
-                mEasyMuxer,
-                SPUtil.getEnableVideoOverlay(context),
-                SPUtil.getBitrateKbps(context),
-                info.mName, info.mColorFormat,
-                channelid,
-                Constant.Root);
+        mRecordVC = new RecordVideoConsumer(context, mHevc ? MediaFormat.MIMETYPE_VIDEO_HEVC : MediaFormat.MIMETYPE_VIDEO_AVC, mEasyMuxer, SPUtil.getEnableVideoOverlay(context), SPUtil.getBitrateKbps(context), info.mName, info.mColorFormat, channelid, Constant.Root);
         mRecordVC.onVideoStart(frameWidth, frameHeight);
         if (audioStream != null) {
             audioStream.setMuxer(mEasyMuxer);
@@ -604,15 +584,13 @@ public class MediaStream {
             mRecordVC = null;
         }
 
-        if (mEasyMuxer != null)
-            mEasyMuxer.release();
+        if (mEasyMuxer != null) mEasyMuxer.release();
 
         mEasyMuxer = null;
     }
 
     public void updateResolution(final int w, final int h) {
-        if (mCamera == null)
-            return;
+        if (mCamera == null) return;
 
         stopPreview();
         destroyCamera();
@@ -654,8 +632,7 @@ public class MediaStream {
     private Runnable switchCameraTask = new Runnable() {
         @Override
         public void run() {
-            if (!enableVideo)
-                return;
+            if (!enableVideo) return;
 
             try {
                 if (mTargetCameraId != CAMERA_FACING_BACK_LOOP && mCameraId == mTargetCameraId) {
@@ -689,8 +666,7 @@ public class MediaStream {
     };
 
     Camera.PreviewCallback previewCallback = (data, camera) -> {
-        if (data == null)
-            return;
+        if (data == null) return;
 
         int result;
         if (camInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
@@ -717,8 +693,7 @@ public class MediaStream {
     final IFrameCallback uvcFrameCallback = new IFrameCallback() {
         @Override
         public void onFrame(ByteBuffer frame) {
-            if (uvcCamera == null)
-                return;
+            if (uvcCamera == null) return;
 
             Thread.currentThread().setName("UVCCamera");
             frame.clear();
@@ -738,18 +713,13 @@ public class MediaStream {
     };
 
     public void onPreviewFrame2(byte[] data, Object camera) {
-        if (data == null)
-            return;
+        if (data == null) return;
 
         if (i420_buffer == null || i420_buffer.length != data.length) {
             i420_buffer = new byte[data.length];
         }
 
-        JNIUtil.ConvertToI420(data, i420_buffer,
-                defaultWidth, defaultHeight,
-                0, 0,
-                defaultWidth, defaultHeight,
-                0, 2);
+        JNIUtil.ConvertToI420(data, i420_buffer, defaultWidth, defaultHeight, 0, 0, defaultWidth, defaultHeight, 0, 2);
         System.arraycopy(i420_buffer, 0, data, 0, data.length);
 
         if (mRecordVC != null) {

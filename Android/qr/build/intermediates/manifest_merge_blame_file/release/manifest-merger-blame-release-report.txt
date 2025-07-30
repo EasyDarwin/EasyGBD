@@ -19,66 +19,66 @@
 19
 20    <uses-sdk
 21        android:minSdkVersion="19"
-21-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml
+21-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml
 22        android:targetSdkVersion="19" />
-22-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml
+22-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml
 23
 24    <uses-permission android:name="android.permission.CAMERA" />
-24-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:19:3-62
-24-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:19:20-60
+24-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:19:3-62
+24-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:19:20-60
 25
 26    <!-- Don't require camera, as this requires a rear camera. This allows it to work on the Nexus 7 -->
 27    <uses-feature
-27-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:22:3-82
+27-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:22:3-82
 28        android:name="android.hardware.camera"
-28-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:22:17-55
+28-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:22:17-55
 29        android:required="false" />
-29-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:22:56-80
+29-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:22:56-80
 30    <uses-feature
-30-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:23:3-88
+30-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:23:3-88
 31        android:name="android.hardware.camera.front"
-31-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:23:17-61
+31-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:23:17-61
 32        android:required="false" />
-32-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:23:62-86
+32-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:23:62-86
 33    <uses-feature
-33-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:24:3-92
+33-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:24:3-92
 34        android:name="android.hardware.camera.autofocus"
-34-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:24:17-65
+34-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:24:17-65
 35        android:required="false" />
-35-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:24:66-90
+35-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:24:66-90
 36    <uses-feature
-36-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:25:3-88
+36-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:25:3-88
 37        android:name="android.hardware.camera.flash"
-37-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:25:17-61
+37-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:25:17-61
 38        android:required="false" />
-38-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:25:62-86
+38-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:25:62-86
 39    <uses-feature
-39-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:26:3-93
+39-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:26:3-93
 40        android:name="android.hardware.screen.landscape"
-40-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:26:17-65
+40-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:26:17-65
 41        android:required="false" />
-41-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:26:66-90
+41-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:26:66-90
 42    <uses-feature
-42-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:27:3-80
+42-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:27:3-80
 43        android:name="android.hardware.wifi"
-43-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:27:17-53
+43-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:27:17-53
 44        android:required="false" />
-44-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:27:54-78
+44-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:27:54-78
 45
 46    <application>
-46-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:29:3-37:17
+46-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:29:3-37:17
 47        <activity
-47-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:30:11-36:13
+47-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:30:11-36:13
 48            android:name="com.journeyapps.barcodescanner.CaptureActivity"
-48-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:31:11-72
+48-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:31:11-72
 49            android:clearTaskOnLaunch="true"
-49-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:32:11-43
+49-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:32:11-43
 50            android:screenOrientation="portrait"
-50-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:33:11-47
+50-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:33:11-47
 51            android:stateNotNeeded="true"
-51-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:34:11-40
+51-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:34:11-40
 52            android:windowSoftInputMode="stateAlwaysHidden" />
-52-->/Users/xialei/workspace/xufan/android/easy-gbd/qr/AndroidManifest.xml:35:11-58
+52-->/Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:35:11-58
 53    </application>
 54
 55</manifest>

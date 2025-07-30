@@ -21,8 +21,8 @@ android {
         applicationId "com.easygbs.easygbd"
         minSdk 19
         targetSdk 32
-        versionCode 20241225
-        versionName '2.0.24.1225'
+        versionCode 20240730
+        versionName '2.0.25.0730'
         multiDexEnabled true
 
         ndk {

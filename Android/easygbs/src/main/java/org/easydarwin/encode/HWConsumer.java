@@ -99,12 +99,16 @@ public class HWConsumer extends Thread implements VideoConsumer {
 
     @Override
     public int onVideo(byte[] i420, int format) {
-        if (!mVideoStarted) {
+
+        if (!mVideoStarted) return 0;
+
+        if (mPusher != null && !mPusher.getPushed()) {
             return 0;
         }
 
-        if (yuv == null || yuv.length != i420.length)
-            yuv = new byte[i420.length];
+        Log.i(TAG, "onVideo " + (mPusher == null ? "录像进程" : "视频进程" + "数据编码中"));
+
+        if (yuv == null || yuv.length != i420.length) yuv = new byte[i420.length];
 
         try {
             byte[] data = yuv;
@@ -117,8 +121,7 @@ public class HWConsumer extends Thread implements VideoConsumer {
 
             if (time >= 0) {
                 time = millisPerFrame - time;
-                if (time > 0)
-                    Thread.sleep(time / 2);
+                if (time > 0) Thread.sleep(time / 2);
             }
 
             //从input缓冲区队列申请empty buffer
@@ -154,9 +157,9 @@ public class HWConsumer extends Thread implements VideoConsumer {
             if (time > 0) {
                 Thread.sleep(time / 2);
             }
-
+            Log.i(TAG, "time = " + time);
             lastPush = System.currentTimeMillis();
-        } catch (InterruptedException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
@@ -170,8 +173,9 @@ public class HWConsumer extends Thread implements VideoConsumer {
         byte[] mPpsSps = new byte[0];
         byte[] h264 = new byte[mWidth * mHeight];
 
+
         do {
-            outputBufferIndex = mMediaCodec.dequeueOutputBuffer(bufferInfo, 10000);
+            outputBufferIndex = mMediaCodec.dequeueOutputBuffer(bufferInfo, 10 * 1000);
 
             if (outputBufferIndex == MediaCodec.INFO_TRY_AGAIN_LATER) {
                 // no output available yet
@@ -276,8 +280,7 @@ public class HWConsumer extends Thread implements VideoConsumer {
     @Override
     public synchronized void setMuxer(EasyMuxer mEasyMuxer) {
         if (mEasyMuxer != null) {
-            if (mMediaFormat != null)
-                mEasyMuxer.addTrack(mMediaFormat, true);
+            if (mMediaFormat != null) mEasyMuxer.addTrack(mMediaFormat, true);
         }
 
         this.mEasyMuxer = mEasyMuxer;

@@ -32,7 +32,7 @@ public class Device implements Pusher {
     public static final int AUDIO_CODEC_OPUS = 6;
     public static final int AUDIO_CODEC_PCM = 7;
 
-    private boolean pushed = false;
+    private static boolean pushed = false;
 
     private int videoCodec;
     private int width;
@@ -129,8 +129,6 @@ public class Device implements Pusher {
                 }
             }
         }
-
-        pushed = true;
     }
 
     @Override
@@ -174,10 +172,13 @@ public class Device implements Pusher {
     }
 
     @Override
+    public boolean getPushed() {
+        return pushed;
+    }
+
+    @Override
     public void stop() {
-        if (pushed) {
-            release();
-        }
+        release();
         pushed = false;
     }
 
@@ -200,9 +201,10 @@ public class Device implements Pusher {
                 fi.length = paramLength;
                 fi.audio = true;
                 callback.onSourceCallBack(fi);
-
-                saveToFile(param, "audio.data");
-
+            } else if (OnInitPusherCallback.CODE.GB28181_DEVICE_EVENT_START_AUDIO_VIDEO == eventType) {
+                pushed = true;
+            } else if (OnInitPusherCallback.CODE.GB28181_DEVICE_EVENT_STOP_AUDIO_VIDEO == eventType) {
+                pushed = false;
             }
         }
     }

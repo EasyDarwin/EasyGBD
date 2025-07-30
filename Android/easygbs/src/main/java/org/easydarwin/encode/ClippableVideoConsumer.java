@@ -1,14 +1,17 @@
 package org.easydarwin.encode;
+
 import android.content.Context;
 import android.util.Log;
+
 import org.easydarwin.muxer.EasyMuxer;
 import org.easydarwin.sw.JNIUtil;
 import org.easydarwin.sw.TxtOverlay;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class ClippableVideoConsumer implements VideoConsumer {
-    public String TAG=ClippableVideoConsumer.class.getSimpleName();
+    public String TAG = ClippableVideoConsumer.class.getSimpleName();
     private final VideoConsumer consumer;
 
     private final int width;
@@ -21,7 +24,7 @@ public class ClippableVideoConsumer implements VideoConsumer {
     private int originalWidth, originalHeight;
     private byte[] i420_buffer2;
 
-    private SimpleDateFormat ymdhmssSimpleDateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    private SimpleDateFormat ymdhmssSimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
     /**
      * @param context  context
@@ -47,7 +50,7 @@ public class ClippableVideoConsumer implements VideoConsumer {
         consumer.onVideoStart(this.width, this.height);
 
         overlay = new TxtOverlay(context);
-        overlay.init(width, height,context.getFileStreamPath("SIMYOU.ttf").getPath());
+        overlay.init(width, height, context.getFileStreamPath("SIMYOU.ttf").getPath());
     }
 
     @Override
@@ -56,7 +59,7 @@ public class ClippableVideoConsumer implements VideoConsumer {
 
         if (enableVideoOverlay) {
             String txt = ymdhmssSimpleDateFormat.format(new Date());
-            overlay.overlay(i420_buffer2,txt);
+            overlay.overlay(i420_buffer2, txt);
         }
 
         return consumer.onVideo(i420_buffer2, format);
