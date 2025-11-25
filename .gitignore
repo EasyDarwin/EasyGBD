@@ -1,3 +1,6 @@
 Win/Src/.vs/
 Win/Src/x64/
 Win/Bin/gb28181device-1.log
+.idea
+Android/qr/build/
+Android/.idea/

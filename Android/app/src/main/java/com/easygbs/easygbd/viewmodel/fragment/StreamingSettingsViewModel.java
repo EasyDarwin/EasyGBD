@@ -1,7 +1,6 @@
 package com.easygbs.easygbd.viewmodel.fragment;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -145,7 +144,10 @@ public class StreamingSettingsViewModel extends BaseObservable {
 
     public View mViewlocationfrequency = null;
 
+    public View mViewTransPsuhList = null;
+
     public RecyclerView rvlocationfrequency;
+    public RecyclerView rvTranPush;
 
     public List<LocationfrequencyBean> LocationfrequencyBeanList = null;
 
@@ -492,6 +494,7 @@ public class StreamingSettingsViewModel extends BaseObservable {
 
         int locationfreq = SPUtil.getLocationfreq(mMainActivity);
         mStreamingSettingsFragment.mFragmentStreamingsettingsBinding.tvlocationfrequency.setText("" + locationfreq + "秒");
+
 
         if (mViewlocationfrequency != null) {
             selectlocationfreq = locationfreq;
@@ -1554,6 +1557,7 @@ public class StreamingSettingsViewModel extends BaseObservable {
             }
         });
     }
+
 
     public void hidePoplocationfrequency() {
         if (mPopuplocationfrequency != null) {

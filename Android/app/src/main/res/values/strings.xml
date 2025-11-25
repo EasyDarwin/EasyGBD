@@ -7,6 +7,11 @@
         <item>2022</item>
     </string-array>
 
+    <string-array name="gbVerArr">
+        <item>GB28181</item>
+        <item>国网B</item>
+    </string-array>
+
     <string-array name="tranproarr">
         <item>UDP</item>
         <item>TCP</item>
@@ -99,6 +104,11 @@
         <item>8秒</item>
         <item>9秒</item>
         <item>10秒</item>
+    </string-array>
+
+    <string-array name="tran_resolution_arr">
+        <item>720P</item>
+        <item>1080P</item>
     </string-array>
 
 </resources>

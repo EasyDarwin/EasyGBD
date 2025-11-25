@@ -1,8 +1,12 @@
 package com.easygbs;
 
 import android.content.Context;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
+import androidx.annotation.RequiresApi;
+
 
 import org.easydarwin.push.Pusher;
 import org.easydarwin.util.SIP;
@@ -12,7 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class Device implements Pusher {
-    private static String TAG = Device.class.getSimpleName();
+    private static String TAG = "EasyGBD";
     private static String ip;
     private static int port;
     private static Context context;
@@ -46,6 +50,11 @@ public class Device implements Pusher {
 
     private static OnInitPusherCallback callback;
 
+    // 单个转码器实例
+    private long transContext;
+    private int isEnTransPush;
+    private int transPushResolution;
+
     public Device(Context c) {
         context = c;
     }
@@ -73,7 +82,7 @@ public class Device implements Pusher {
      * @param heartbeatInterval 心跳周期
      * @param heartbeatCount    最大心跳超时次数
      */
-    public native int create(int version, String serverIp, int serverPort, String serverId, String serverDomain, String deviceId, String deviceName, int localSipPort, int channelNum, String password, int protocol, int mediaProtocol, int regExpires, int heartbeatInterval, int heartbeatCount);
+    public native int create(int version, String serverIp, int serverPort, String serverId, String serverDomain, String deviceId, String deviceName, int localSipPort, int channelNum, String password, int protocol, int mediaProtocol, int regExpires, int heartbeatInterval, int heartbeatCount, int gbVer, String logPath);
 
     public native int addChannelInfo(int channelId, String indexCode, String name, String manufacturer, String model, String parentID, String owner, String civilCode, String address, double longitude, double latitude);
 
@@ -86,7 +95,7 @@ public class Device implements Pusher {
      * @param frameSize
      * @param keyframe  关键帧1 其他0
      */
-    public native int pushVideo(int channelId, byte[] buffer, int frameSize, int keyframe);
+    public static native int pushVideo(int channelId, byte[] buffer, int frameSize, int keyframe);
 
     public native int pushAudio(int channelId, int format, byte[] buffer, int frameSize, int nbSamples);
 
@@ -102,14 +111,14 @@ public class Device implements Pusher {
         port = sip.getServerPort();
 
         int size = sip.getList().size();
+        create(sip.getVer(), sip.getServerIp(), sip.getServerPort(), sip.getServerId(), sip.getServerDomain(), sip.getDeviceId(), sip.getDeviceName(), sip.getLocalSipPort(), size, sip.getPassword(), sip.getProtocol(), 1, sip.getRegExpires(), sip.getHeartbeatInterval(), sip.getHeartbeatCount(), sip.getGbVer(), sip.getLogPath());
 
-        create(sip.getVer(), sip.getServerIp(), sip.getServerPort(), sip.getServerId(), sip.getServerDomain(), sip.getDeviceId(), sip.getDeviceName(), sip.getLocalSipPort(), size, sip.getPassword(), sip.getProtocol(), 1, sip.getRegExpires(), sip.getHeartbeatInterval(), sip.getHeartbeatCount());
+        Log.i(TAG, sip.toString());
 
         for (int i = 0; i < size; i++) {
             SIP.GB28181_CHANNEL_INFO_T item = sip.getList().get(i);
-
             addChannelInfo(i, item.getIndexCode(), item.getName(), item.getManufacturer(), item.getModel(), item.getParentId(), item.getOwner(), item.getCivilCode(), item.getAddress(), item.getLongitude(), item.getLatitude());
-            Log.i(TAG, "执行完成");
+            Log.i(TAG, "执行完成" + item.toString());
         }
 
 
@@ -147,10 +156,12 @@ public class Device implements Pusher {
         this.bitPerSamples = bitPerSamples;
     }
 
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void pushV(int channelId, byte[] buffer, int length, int keyframe) {
         if (pushed) {
-            int res = pushVideo(channelId, buffer, length, keyframe);
+            pushVideo(channelId, buffer, length, keyframe);
         }
     }
 
@@ -191,6 +202,9 @@ public class Device implements Pusher {
      * @param paramLength
      */
     public static void OnGB28181DeviceCALLBACK(int prt, int channelId, int eventType, byte[] param, int paramLength) {
+
+        Log.i(TAG, "OnGB28181DeviceCALLBACK: " + prt + " " + channelId + " " +  OnInitPusherCallback.CODE.getName(eventType) + " " + paramLength);
+
         if (callback != null) {
 
             callback.onCallback(channelId, eventType, OnInitPusherCallback.CODE.getName(eventType));
@@ -369,6 +383,31 @@ public class Device implements Pusher {
         @Override
         public String toString() {
             return "MediaInfo{" + "videoCodec=" + videoCodec + ", fps=" + fps + ", audioCodec=" + audioCodec + ", sample=" + sample + ", channel=" + channel + ", bitPerSample=" + bitPerSample + ", spsLen=" + spsLen + ", ppsLen=" + ppsLen + '}';
+        }
+
+
+    }
+
+
+
+    public static void onTransH264CallBack(byte[] frameData, TransFrameInfo tfi, int user) {
+        int res = pushVideo(user, frameData, frameData.length, tfi.flag);
+    }
+
+    public static final class TransFrameInfo {
+        public int dataSize;
+        public int pixFmt;
+        public int width;
+        public int height;
+        public int streamIndex; // 0 - video; 1 - other
+        public int flag;
+
+        public TransFrameInfo() {
+        }
+
+        @Override
+        public String toString() {
+            return "TransFrameInfo{" + "dataSize=" + dataSize + ", pixFmt=" + pixFmt + ", width=" + width + ", height=" + height + ", streamIndex=" + streamIndex + ", flag=" + flag + '}';
         }
     }
 }

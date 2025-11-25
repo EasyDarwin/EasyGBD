@@ -1,9 +1,11 @@
 package org.easydarwin.util;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class SIP {
     private int ver;
+    private int gbVer;
     /**
      * SIP服务器地址
      */
@@ -47,12 +49,30 @@ public class SIP {
      */
     private int heartbeatCount;
 
+    private String logPath = "";
+
+    public String getLogPath() {
+        return logPath;
+    }
+
+    public void setLogPath(String path) {
+        this.logPath = path;
+    }
+
     public int getVer() {
         return ver;
     }
 
+    public int getGbVer() {
+        return gbVer;
+    }
+
     public void setVer(int ver) {
         this.ver = ver;
+    }
+
+    public void setGBVer(int gbVer) {
+        this.gbVer = gbVer;
     }
 
     public int getLocalSipPort() {
@@ -154,8 +174,7 @@ public class SIP {
     }
 
     public enum ProtocolEnum {
-        UDP(0),
-        TCP(1);
+        UDP(0), TCP(1);
 
         private int value;
 
@@ -274,5 +293,42 @@ public class SIP {
         public void setLatitude(double latitude) {
             this.latitude = latitude;
         }
+
+        @Override
+        public String toString() {
+            return "GB28181_CHANNEL_INFO_T{" +
+                    "name='" + name + '\'' +
+                    ", manufacturer='" + manufacturer + '\'' +
+                    ", model='" + model + '\'' +
+                    ", parentId='" + parentId + '\'' +
+                    ", owner='" + owner + '\'' +
+                    ", civilCode='" + civilCode + '\'' +
+                    ", address='" + address + '\'' +
+                    ", longitude=" + longitude +
+                    ", latitude=" + latitude +
+                    ", indexCode='" + indexCode + '\'' +
+                    '}';
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "SIP{" +
+                "ver=" + ver +
+                ", gbVer=" + gbVer +
+                ", serverIp='" + serverIp + '\'' +
+                ", serverPort=" + serverPort +
+                ", localSipPort=" + localSipPort +
+                ", serverId='" + serverId + '\'' +
+                ", serverDomain='" + serverDomain + '\'' +
+                ", deviceId='" + deviceId + '\'' +
+                ", deviceName='" + deviceName + '\'' +
+                ", password='" + password + '\'' +
+                ", protocol=" + protocol +
+                ", regExpires=" + regExpires +
+                ", heartbeatInterval=" + heartbeatInterval +
+                ", heartbeatCount=" + heartbeatCount +
+                ", logPath='" + logPath + '\'' +
+                '}';
     }
 }

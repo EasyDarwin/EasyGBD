@@ -48,11 +48,64 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
                                 android:gravity="center"
+                                android:text="国标版本"
+                                android:textColor="@color/color_1a1a1a"
+                                android:textSize="@dimen/sp_14" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginLeft="@dimen/dp_10"
+                                android:orientation="vertical">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="center"
+                                    android:onClick="@{viewModel::gBVer}"
+                                    android:orientation="horizontal">
+
+                                    <TextView
+                                        android:id="@+id/gbtvver"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight="1"
+                                        android:gravity="center|left"
+                                        android:textColor="@color/color_666666"
+                                        android:textSize="@dimen/sp_14" />
+
+                                    <ImageView
+                                        android:id="@+id/ivGBverarrow"
+                                        android:layout_width="@dimen/dp_10"
+                                        android:layout_height="@dimen/dp_10"
+                                        android:background="@mipmap/ic_downarrow" />
+
+                                </LinearLayout>
+
+                                <!-- 使用统一的下划线组件 -->
+                                <include layout="@layout/underline" />
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="@dimen/dp_20"
+                            android:layout_weight="1"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
                                 android:text="选择版本"
                                 android:textColor="@color/color_1a1a1a"
                                 android:textSize="@dimen/sp_14" />
 
                             <LinearLayout
+                                android:id="@+id/llGetVerView"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:layout_marginLeft="@dimen/dp_10"
@@ -88,10 +141,53 @@
 
                         </LinearLayout>
 
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp_35"
+                        android:orientation="horizontal">
+
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:layout_marginLeft="@dimen/dp_20"
+                            android:layout_weight="1"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="@dimen/dp_70"
+                                android:layout_height="match_parent"
+                                android:gravity="center|left"
+                                android:text="服务器地址"
+                                android:textColor="@color/color_1a1a1a"
+                                android:textSize="@dimen/sp_14" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginLeft="@dimen/dp_10"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <EditText
+                                    android:id="@+id/etsipserveraddr"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:background="@color/transparent"
+                                    android:gravity="center|left"
+                                    android:textColor="@color/color_666666"
+                                    android:textSize="@dimen/sp_14"
+                                    app:textWatcher="@{viewModel.textWatcher}" />
+
+                                <include layout="@layout/underline" />
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="@dimen/dp_180"
+                            android:layout_height="match_parent"
                             android:layout_weight="1"
                             android:orientation="horizontal">
 
@@ -99,7 +195,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
                                 android:gravity="center"
-                                android:text="服务器端口"
+                                android:text="端口"
                                 android:textColor="@color/color_1a1a1a"
                                 android:textSize="@dimen/sp_14" />
 
@@ -125,41 +221,6 @@
                         </LinearLayout>
                     </LinearLayout>
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/dp_35"
-                        android:layout_marginTop="@dimen/dp_1"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="@dimen/dp_100"
-                            android:layout_height="match_parent"
-                            android:gravity="center|left"
-                            android:text="SIP服务器地址"
-                            android:textColor="@color/color_1a1a1a"
-                            android:textSize="@dimen/sp_14" />
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_marginLeft="@dimen/dp_10"
-                            android:gravity="center"
-                            android:orientation="vertical">
-
-                            <EditText
-                                android:id="@+id/etsipserveraddr"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:background="@color/transparent"
-                                android:gravity="center|left"
-                                android:textColor="@color/color_666666"
-                                android:textSize="@dimen/sp_14"
-                                app:textWatcher="@{viewModel.textWatcher}" />
-
-                            <include layout="@layout/underline" />
-                        </LinearLayout>
-                    </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"

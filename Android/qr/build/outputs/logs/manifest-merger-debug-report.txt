@@ -1,79 +1,79 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:17:1-39:12
-INJECTED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:17:1-39:12
-INJECTED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:17:1-39:12
+ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:17:1-39:12
+INJECTED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:17:1-39:12
+INJECTED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:17:1-39:12
 	package
-		ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:17:70-111
-		INJECTED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml
-		INJECTED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml
+		ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:17:70-111
+		INJECTED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml
+		INJECTED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml
 	xmlns:android
-		ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:17:11-69
+		ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:17:11-69
 uses-permission#android.permission.CAMERA
-ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:19:3-62
+ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:19:3-62
 	android:name
-		ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:19:20-60
+		ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:19:20-60
 uses-feature#android.hardware.camera
-ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:22:3-82
+ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:22:3-82
 	android:required
-		ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:22:56-80
+		ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:22:56-80
 	android:name
-		ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:22:17-55
+		ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:22:17-55
 uses-feature#android.hardware.camera.front
-ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:23:3-88
+ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:23:3-88
 	android:required
-		ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:23:62-86
+		ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:23:62-86
 	android:name
-		ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:23:17-61
+		ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:23:17-61
 uses-feature#android.hardware.camera.autofocus
-ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:24:3-92
+ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:24:3-92
 	android:required
-		ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:24:66-90
+		ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:24:66-90
 	android:name
-		ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:24:17-65
+		ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:24:17-65
 uses-feature#android.hardware.camera.flash
-ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:25:3-88
+ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:25:3-88
 	android:required
-		ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:25:62-86
+		ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:25:62-86
 	android:name
-		ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:25:17-61
+		ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:25:17-61
 uses-feature#android.hardware.screen.landscape
-ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:26:3-93
+ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:26:3-93
 	android:required
-		ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:26:66-90
+		ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:26:66-90
 	android:name
-		ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:26:17-65
+		ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:26:17-65
 uses-feature#android.hardware.wifi
-ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:27:3-80
+ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:27:3-80
 	android:required
-		ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:27:54-78
+		ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:27:54-78
 	android:name
-		ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:27:17-53
+		ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:27:17-53
 application
-ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:29:3-37:17
+ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:29:3-37:17
 activity#com.journeyapps.barcodescanner.CaptureActivity
-ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:30:11-36:13
+ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:30:11-36:13
 	android:screenOrientation
-		ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:33:11-47
+		ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:33:11-47
 	android:clearTaskOnLaunch
-		ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:32:11-43
+		ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:32:11-43
 	android:stateNotNeeded
-		ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:34:11-40
+		ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:34:11-40
 	android:windowSoftInputMode
-		ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:35:11-58
+		ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:35:11-58
 	android:name
-		ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml:31:11-72
+		ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml:31:11-72
 uses-sdk
-INJECTED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml reason: use-sdk injection requested
-INJECTED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml
-INJECTED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml
-INJECTED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml
-INJECTED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml
+INJECTED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml
+INJECTED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml
+INJECTED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml
+INJECTED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml
 	android:targetSdkVersion
-		INJECTED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml
-		ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml
-		INJECTED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml
+		INJECTED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml
+		ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml
+		INJECTED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml
 	android:minSdkVersion
-		INJECTED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml
-		ADDED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml
-		INJECTED from /Users/xialei/Downloads/EasyGBD/Android/qr/AndroidManifest.xml
+		INJECTED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml
+		ADDED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml
+		INJECTED from /Users/xialei/workspace/xufan/android/github/EasyGBD/Android/qr/AndroidManifest.xml

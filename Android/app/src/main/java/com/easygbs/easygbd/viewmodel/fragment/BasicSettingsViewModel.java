@@ -44,12 +44,16 @@ public class BasicSettingsViewModel extends ViewModel {
     public LayoutInflater mLayoutInflater = null;
 
     public View mViewVer = null;
+    public View mViewGBVer = null;
 
     public RecyclerView rvver;
+    public RecyclerView rvGBVer;
 
     public List<VerBean> VerBeanList = null;
+    public List<VerBean> GBVerBeanList = null;
 
     public VerAdapter mVerAdapter = null;
+    public VerAdapter mGBVerAdapter = null;
 
     public PopupWindow mPopupVer = null;
 
@@ -83,7 +87,10 @@ public class BasicSettingsViewModel extends ViewModel {
         mLayoutInflater = LayoutInflater.from(mMainActivity);
 
         int getver = SPUtil.getVer(mMainActivity);
+        String getGBVer = SPUtil.getGBVer(mMainActivity);
+
         mBasicSettingsFragment.mFragmentBasicsettingsBinding.tvver.setText("" + getver);
+        mBasicSettingsFragment.mFragmentBasicsettingsBinding.gbtvver.setText("" + getGBVer);
 
         mBasicSettingsFragment.mFragmentBasicsettingsBinding.etport.setText("" + SPUtil.getServerport(mMainActivity));
 
@@ -219,7 +226,6 @@ public class BasicSettingsViewModel extends ViewModel {
                         }
                     });
 
-
                     int getver = SPUtil.getVer(mMainActivity);
 
                     String[] vers = mMainActivity.getResources().getStringArray(R.array.verarr);
@@ -258,6 +264,88 @@ public class BasicSettingsViewModel extends ViewModel {
                 int yoff = (int) mMainActivity.getResources().getDimension(R.dimen.dp_4);
 
                 mPopupVer.showAsDropDown(mBasicSettingsFragment.mFragmentBasicsettingsBinding.tvver, 0, yoff);
+            }
+        });
+    }
+
+    public void gBVer(View view) {
+        view.post(new Runnable() {
+            @Override
+            public void run() {
+                // 获取视图的宽度和高度
+                int viewWidth = view.getWidth();
+                if (mViewGBVer == null) {
+                    mViewGBVer = mLayoutInflater.inflate(R.layout.po_ver_gb, null);
+
+                    rvGBVer = mViewGBVer.findViewById(R.id.gbrvver);
+
+                    rvGBVer.setLayoutManager(new GridLayoutManager(mMainActivity, 1, RecyclerView.VERTICAL, false));
+
+                    GBVerBeanList = new ArrayList<VerBean>();
+                    mGBVerAdapter = new VerAdapter(mMainActivity, mMainActivity, R.layout.adapter_ver_gb, GBVerBeanList);
+                    rvGBVer.setAdapter(mGBVerAdapter);
+
+                    mGBVerAdapter.setOnItemClickListener(new MultiItemTypeAdapter.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(View view, RecyclerView.ViewHolder holder, int position) {
+                            String name = GBVerBeanList.get(position).getName();
+
+                            SPUtil.setGBVer(mMainActivity, name);
+
+                            if(name.equals("国网B")){
+                                mBasicSettingsFragment.mFragmentBasicsettingsBinding.llGetVerView.setEnabled(false);
+                            }else {
+                                mBasicSettingsFragment.mFragmentBasicsettingsBinding.llGetVerView.setEnabled(true);
+                            }
+
+                            Log.i(TAG, "is name =" + name);
+
+                            mBasicSettingsFragment.mFragmentBasicsettingsBinding.gbtvver.setText(name);
+
+                            mGBVerAdapter.notifyDataSetChanged();
+
+                            hidePopVer();
+                        }
+
+                        @Override
+                        public boolean onItemLongClick(View view, RecyclerView.ViewHolder holder, int position) {
+                            return false;
+                        }
+                    });
+
+
+                    int getver = SPUtil.getVer(mMainActivity);
+
+                    String[] vers = mMainActivity.getResources().getStringArray(R.array.gbVerArr);
+                    for (int i = 0; i < vers.length; i++) {
+                        VerBean mVerBean = new VerBean();
+                        mVerBean.setName(vers[i]);
+                        GBVerBeanList.add(mVerBean);
+                    }
+
+                    mBasicSettingsFragment.mFragmentBasicsettingsBinding.gbtvver.setText("" + getver);
+
+                    mGBVerAdapter.notifyDataSetChanged();
+                }
+
+                // 动态计算 PopupWindow 高度
+                mViewGBVer.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+                int height = mViewGBVer.getMeasuredHeight(); // 获取测量后的高度
+
+                mPopupVer = new PopupWindow(mViewGBVer, viewWidth, height);
+
+                mPopupVer.setOutsideTouchable(true);
+
+                mPopupVer.setOnDismissListener(new PopupWindow.OnDismissListener() {
+                    @Override
+                    public void onDismiss() {
+
+                    }
+                });
+
+                int yoff = (int) mMainActivity.getResources().getDimension(R.dimen.dp_4);
+
+                mPopupVer.showAsDropDown(mBasicSettingsFragment.mFragmentBasicsettingsBinding.gbtvver, 0, yoff);
             }
         });
     }
