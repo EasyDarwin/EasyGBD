@@ -62,6 +62,6 @@ EasyGBD GB28181 设备支持实时信息订阅与事件通知机制，便于用�
 - Suitable for embedded device development
 
 ### ✈ 技术支持
-新平台编译：请将需要平台的交叉编译工具链上传到对应的网盘地址，再issue中贴上，我们将在一周内提供交叉编译的版本；
+新平台编译：请将需要平台的交叉编译工具链上传到对应的网盘地址，在issue中贴上，我们将在一周内提供交叉编译的版本；
 
 联系我们：<a href="http://www.easydarwin.org" target="_blank" title="EasyDarwin开源流媒体服务器">http://www.easydarwin.org</a>
