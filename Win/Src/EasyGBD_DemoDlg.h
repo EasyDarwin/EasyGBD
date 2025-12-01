@@ -8,10 +8,10 @@
 #include "osmutex.h"
 #include <vector>
 //#include "../AudioTranscode/AudioTranscodeAPI.h"
-#include "GB28181DeviceAPI.h"
+#include "EasyGB28181DeviceAPI.h"
 #include "EasyStreamClientAPI.h"
 #pragma comment(lib, "libEasyStreamClient.lib")
-#pragma comment(lib, "GB28181Device.lib")
+#pragma comment(lib, "libEasyGBD.lib")
 
 #include <string>
 using namespace std;
@@ -64,6 +64,7 @@ class CEasyGBDDemoDlg : public CDialogEx
 public:
 	CEasyGBDDemoDlg(CWnd* pParent = nullptr);	// 标准构造函数
 
+	CComboBox* pComboxProtocolType;	//IDC_COMBO_PROTOCOL_TYPE
 	CEdit* pEdtServerSipID;			//IDC_EDIT_SERVER_SIPID
 	CEdit* pEdtServerIP;			//IDC_EDIT_SERVER_IP
 	CEdit* pEdtServerPort;			//IDC_EDIT_SERVER_PORT

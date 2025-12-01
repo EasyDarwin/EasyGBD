@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<XmlConfig>
+    <SipType>0</SipType>
+    <serverSipID>34020000002000000001</serverSipID>
+    <serverIP>192.168.1.106</serverIP>
+    <serverSipPort>15060</serverSipPort>
+    <registerExpire>3600</registerExpire>
+    <heartbeatCount>3</heartbeatCount>
+    <heartbeatInterval>60</heartbeatInterval>
+    <protocol>UDP</protocol>
+    <password>12345678</password>
+    <localSipID>34020000001110000009</localSipID>
+    <localPort>15090</localPort>
+    <deviceName>EasyGBD20251109224408</deviceName>
+    <sourcePath>EasyDarwin.mp4</sourcePath>
+</XmlConfig>
