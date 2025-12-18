@@ -23,6 +23,10 @@
 #define CALLBACK
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+
 typedef enum __GB28181_DEVICE_EVENT_TYPE_ENUM_T
 {
 	GB28181_DEVICE_EVENT_CONNECTING = 1,		//连接中
@@ -48,11 +52,29 @@ typedef enum __GB28181_DEVICE_EVENT_TYPE_ENUM_T
 	GB28181_DEVICE_EVENT_PTZ_ZOOM_IN,			// 云台-拉近
 	GB28181_DEVICE_EVENT_PTZ_ZOOM_OUT,			// 云台-拉远
 
+	GB28181_DEVICE_EVENT_FIND_RECORD,			// 录像文件查询
 
 }GB28181_DEVICE_EVENT_TYPE_ENUM_T;
 
 #define MAX_CH_NUMS     8
+typedef struct __GB28181_RECORD_INFO_T
+{
+	int     Secrecy;			// 保密属性 0
+	int     FileSize;			// 录像文件大小
+	char    Type[16];			// 录像产生类型 time
+	char	StartTime[32];		// 录像开始时间(格式:2025-04-04T01:02:03)
+	char	EndTime[32];		// 录像结束时间(格式:2025-04-04T01:02:03)
+	char	Name[100];			// 录像文件名
+}GB28181_RECORD_INFO_T;
+typedef struct __GB28181_RECORD_RES_T
+{
+	int						SumNum;				// 查询结果总数;对应RecordList内存
+	char					StartTime[32];		// 查询录像开始时间(格式:2025-04-04T01:02:03)
+	char					EndTime[32];		// 查询录像结束时间(格式:2025-04-04T01:02:03)
+	char					DeviceID[100];		// 设备ID
 
+	GB28181_RECORD_INFO_T*	RecordList;			// 录像列表; 回调使用malloc申请内存, 内部自动释放
+}GB28181_RECORD_RES_T;
 
 typedef struct __GB28181_CHANNEL_INFO_T
 {
@@ -89,6 +111,8 @@ typedef struct __GB28181_DEVICE_INFO_T
 	int		heartbeat_count;    // gb28181 heartbeat count
 	int     log_enable;         // log enable flag
 	int     log_level;          // log level(0:TRACE,1:DEBUG,2:INFO,3:WARNING,4:ERROR,5:FATAL)
+	char	log_path[256];		// log path; andorid valid
+	int		sip_type;			// 0 - GB28181; 1 - 国网B
 }GB28181_DEVICE_INFO_T;
 
 typedef int (CALLBACK* GB28181DeviceCALLBACK)(void *userPtr, int channelId, int eventType, char *eventParams, int paramLength);
@@ -106,7 +130,7 @@ int GB28181DEVICE_API	libGB28181Device_Create2(char* serverIP, int serverPort, c
 													char* deviceId, char* deviceName, int localSipPort, int channelNum,
 													GB28181_CHANNEL_INFO_T*pChannel,
 													char* password, int protocol, int mediaProtocol,
-													int regExpires, int heartbeatInterval, int heartbeatCount,
+													int regExpires, int heartbeatInterval, int heartbeatCount, int sip_type,
 													GB28181DeviceCALLBACK callbackPtr, void* userPtr);
 
 //指定视频格式
@@ -162,6 +186,10 @@ int GB28181DEVICE_API	libGB28181Device_AddAudioData(int channelId, unsigned int 
 //释放资源
 int GB28181DEVICE_API	libGB28181Device_Release();
 
+
+#ifdef __cplusplus
+}
+#endif // __cplusplus
 
 #ifdef ANDROID
 #include <jni.h>
