@@ -4,12 +4,16 @@ import android.content.Context;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
 
+import com.mp4.GBProtocolDRParams;
+
 import org.easydarwin.push.Pusher;
 import org.easydarwin.util.SIP;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -57,6 +61,7 @@ public class Device implements Pusher {
 
     public Device(Context c) {
         context = c;
+        GbFileHelper.setContext(context);
     }
 
     static {
@@ -98,6 +103,12 @@ public class Device implements Pusher {
     public static native int pushVideo(int channelId, byte[] buffer, int frameSize, int keyframe);
 
     public native int pushAudio(int channelId, int format, byte[] buffer, int frameSize, int nbSamples);
+
+    public native int pushRecordVideo(long recordPtr, int channelId, byte[] buffer, int frameSize, int keyframe);
+
+    public native int pushRecordAudio(long recordPtr, int channelId, byte[] buffer, int frameSize, int nbSamples);
+
+    public native int endRecordData(long recordPtr); //录像结束
 
     public native int release();
 
@@ -156,8 +167,6 @@ public class Device implements Pusher {
         this.bitPerSamples = bitPerSamples;
     }
 
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void pushV(int channelId, byte[] buffer, int length, int keyframe) {
         if (pushed) {
@@ -195,19 +204,23 @@ public class Device implements Pusher {
 
 
     /**
-     * @param prt
+     * @param
+     * @param recordPtr   录像回调 句柄  默认 0
      * @param channelId
      * @param eventType
      * @param param
      * @param paramLength
      */
-    public static void OnGB28181DeviceCALLBACK(int prt, int channelId, int eventType, byte[] param, int paramLength) {
+    public static void OnGB28181DeviceCALLBACK(int ptr, long recordPtr, int channelId, int eventType, byte[] param, int paramLength) {
 
-        Log.i(TAG, "OnGB28181DeviceCALLBACK: " + prt + " " + channelId + " " +  OnInitPusherCallback.CODE.getName(eventType) + " " + paramLength);
+        Log.i(TAG, "OnGB28181DeviceCALLBACK  ptr  " + ptr + "recordPtr " + recordPtr + "  channelId  " + channelId + "  eventType  " + eventType);
+
+        GBProtocolDRParams mGBProtocolDRParams = GBProtocolDRParams.fromJson(param);
 
         if (callback != null) {
 
-            callback.onCallback(channelId, eventType, OnInitPusherCallback.CODE.getName(eventType));
+            callback.onCallback(channelId, eventType, OnInitPusherCallback.CODE.getName(eventType, mGBProtocolDRParams));
+
             if (OnInitPusherCallback.CODE.GB28181_DEVICE_EVENT_TALK_AUDIO_DATA == eventType) {
                 FrameInfo fi = new FrameInfo();
                 fi.stamp = System.currentTimeMillis();
@@ -275,7 +288,18 @@ public class Device implements Pusher {
             public static final int GB28181_DEVICE_EVENT_PTZ_ZOOM_IN = 18;
             public static final int GB28181_DEVICE_EVENT_PTZ_ZOOM_OUT = 19;
 
-            public static String getName(int code) {
+
+            public static final int GB28181_DEVICE_EVENT_FIND_RECORD = 20;                //录像查询
+            public static final int GB28181_DEVICE_EVENT_RECORD_START_AUDIO_VIDEO = 21;   //录像播放
+            public static final int GB28181_DEVICE_EVENT_RECORD_STOP_AUDIO_VIDEO = 22;    //录像播放停止
+            public static final int GB28181_DEVICE_EVENT_RECORD_SCALE_AUDIO_VIDEO = 23;   //录像倍速
+            public static final int GB28181_DEVICE_EVENT_RECORD_PLAY_AUDIO_VIDEO = 24;    // 录像恢复播放
+            public static final int GB28181_DEVICE_EVENT_RECORD_PAUSE_AUDIO_VIDEO = 25;   // 录像暂停播放
+            public static final int GB28181_DEVICE_EVENT_RECORD_START_DOWNLOAD_AUDIO_VIDEO = 26;   // 开始录像下载
+            public static final int GB28181_DEVICE_EVENT_RECORD_STOP_DOWNLOAD_AUDIO_VIDEO = 27;   // 停止录像下载
+
+
+            public static String getName(int code, GBProtocolDRParams params) {
                 String res;
                 switch (code) {
                     case GB28181_DEVICE_EVENT_CONNECTING:
@@ -332,6 +356,10 @@ public class Device implements Pusher {
                     case GB28181_DEVICE_EVENT_DISCONNECT:
                         res = "已断线：" + ip + ":" + port;
                         break;
+
+                    case GB28181_DEVICE_EVENT_FIND_RECORD:
+                        res = "录像查询：" + params.toString();
+                        break;
                     default:
                         res = "";
                         break;
@@ -387,7 +415,6 @@ public class Device implements Pusher {
 
 
     }
-
 
 
     public static void onTransH264CallBack(byte[] frameData, TransFrameInfo tfi, int user) {

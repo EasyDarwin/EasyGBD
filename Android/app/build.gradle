@@ -19,7 +19,7 @@ android {
 
     defaultConfig {
         applicationId "com.easygbs.easygbd"
-        minSdk 19
+        minSdk 26
         targetSdk 32
         versionCode 2025001125
         versionName '2.0.25.1125'

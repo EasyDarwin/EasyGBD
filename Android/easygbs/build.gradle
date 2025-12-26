@@ -4,7 +4,7 @@ android {
     compileSdk 32
 
     defaultConfig {
-        minSdkVersion 18
+        minSdkVersion 26
         targetSdkVersion 32
         versionCode 20241221
         versionName '2.0.24.1221'
