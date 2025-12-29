@@ -6,8 +6,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -69,7 +67,6 @@ public class Mp4Extractor {
         public int audioSampleRate;
         public int audioChannelCount;
 
-        @NonNull
         @Override
         public String toString() {
             return "MediaInfo{" + "durationSec=" + durationSec + ", width=" + width + ", height=" + height + ", frameRate=" + frameRate + ", videoMime='" + videoMime + '\'' + ", audioMime='" + audioMime + '\'' + ", audioSampleRate=" + audioSampleRate + ", audioChannelCount=" + audioChannelCount + '}';

@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.mp4.Mp4Filter;
 import com.mp4.Mp4Record;
+import com.mp4.Mp4Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,6 +30,7 @@ public class GbFileHelper {
     private static String TAG = "GbFileHelper";
 
     private static Context mContext;
+    private static String pPath;
 
     private static final DateTimeFormatter FORMATTER_DIGIT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss").withLocale(Locale.US);
     // 输出格式：2025-11-30T13:39:56
@@ -46,6 +48,10 @@ public class GbFileHelper {
 
     public static void setContext(Context context) {
         mContext = context;
+    }
+
+    public static void setRecordPath(String path) {
+        pPath = path;
     }
 
     //    {StartTime:"2025-12-10T00:00:00",EndTime:"2025-12-10T23:59:59","cIndex":"0"}
@@ -134,11 +140,9 @@ public class GbFileHelper {
             JSONObject jsonParams = new JSONObject(params);
             String startTime = jsonParams.getString("startTime");
             String endTime = jsonParams.getString("endTime");
-            int cIndex = jsonParams.getInt("cIndex");
-
-            String childPath = String.format("CH%d", cIndex + 1);
-            String mp4PFolder = new File(mContext.getExternalFilesDir(null), childPath).getPath();
-
+//            int cIndex = jsonParams.getInt("cIndex");
+//            String childPath = String.format("CH%d", cIndex + 1);
+            String mp4PFolder = new File(mContext.getExternalFilesDir(null), pPath).getPath();
 
             // 解析params，这里假设params格式为JSON字符串
             // TODO: 根据params的实际内容动态生成文件列表
@@ -148,7 +152,10 @@ public class GbFileHelper {
                     String fileName = item.getName();
                     // 最简单的方式：直接提取和格式化
                     String startTimeISO = getStartTimeByFileName(fileName);
-                    Mp4Record record = new Mp4Record(item.getName(), 0, startTimeISO, 60);  //大小 时长展示写死 如果要读取文件的真实大小和时长 可能需要消耗性能
+
+                    int duration = Mp4Utils.getMp4DurationSeconds(item.getPath());
+
+                    Mp4Record record = new Mp4Record(item.getName(), 0, startTimeISO, duration);  //大小 时长展示写死 如果要读取文件的真实大小和时长 可能需要消耗性能
                     fileList.add(record);
                 }
             }

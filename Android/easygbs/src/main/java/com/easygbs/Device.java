@@ -62,6 +62,7 @@ public class Device implements Pusher {
     public Device(Context c) {
         context = c;
         GbFileHelper.setContext(context);
+        GbFileHelper.setRecordPath("easygbd");
     }
 
     static {

@@ -105,7 +105,7 @@ public class MediaStream {
 
     BlockingQueue<byte[]> cache = new ArrayBlockingQueue<byte[]>(100);
 
-    public SimpleDateFormat ymdhm = new SimpleDateFormat("yyyyMMddHHmmss", Locale.CHINA);
+    public SimpleDateFormat ymdhm = new SimpleDateFormat("yyyyMMddHHmmssSSS", Locale.CHINA);
 
     /*
      0:Camera.CameraInfo.CAMERA_FACING_BACK
@@ -558,8 +558,11 @@ public class MediaStream {
         if (mCamera == null) {
             return;
         }
+         //CH1_  指的是哪个通道 
+        File mFile = new File(recordPath, "CH1_" + ymdhm.format(new Date()));
+        String mFilePath = mFile.toString();
 
-        String mFilePath = new File(recordPath, ymdhm.format(new Date())).toString();
+        Log.i("EasyGBD", mFile.getPath());
 
         mEasyMuxer = new EasyMuxer(recordPath, mFilePath, durationMillis, mTheRecordStatusListener);
 
