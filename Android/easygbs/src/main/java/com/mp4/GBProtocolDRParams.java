@@ -81,8 +81,8 @@ public class GBProtocolDRParams {
                 model.setPlaySpeed(json.getLong("scale"));
             }
 
-            if (json.has("downloadSpeed")) {
-                model.setDownloadSpeed(json.getLong("downloadSpeed"));
+            if (json.has("downloadspeed")) {
+                model.setDownloadSpeed((float) json.getDouble("downloadspeed"));
             }
         } catch (JSONException e) {
             throw new RuntimeException(e);
@@ -116,8 +116,8 @@ public class GBProtocolDRParams {
                 model.setPlaySpeed(json.getLong("scale"));
             }
 
-            if (json.has("downloadSpeed")) {
-                model.setDownloadSpeed(json.getLong("downloadSpeed"));
+            if (json.has("downloadspeed")) {
+                model.setDownloadSpeed((float) json.getDouble("downloadspeed"));
             }
         } catch (JSONException e) {
             throw new RuntimeException(e);

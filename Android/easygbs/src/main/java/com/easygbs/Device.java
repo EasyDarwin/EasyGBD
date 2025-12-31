@@ -1,23 +1,21 @@
 package com.easygbs;
 
 import android.content.Context;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
-
-import androidx.annotation.RequiresApi;
 
 
 import com.mp4.GBProtocolDRParams;
+import com.mp4.Mp4Extractor;
 
 import org.easydarwin.push.Pusher;
 import org.easydarwin.util.SIP;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Device implements Pusher {
     private static String TAG = "EasyGBD";
@@ -42,22 +40,21 @@ public class Device implements Pusher {
 
     private static boolean pushed = false;
 
-    private int videoCodec;
-    private int width;
-    private int height;
-    private int frameRate;
+    private static int videoCodec;
+    private static int width;
+    private static int height;
+    private static int frameRate;
 
-    private int audioCodec;
-    private int sampleRate;
+    private static int audioCodec;
+    private static int sampleRate;
     private int channels;
-    private int bitPerSamples;
+    private static int bitPerSamples;
 
     private static OnInitPusherCallback callback;
 
-    // 单个转码器实例
-    private long transContext;
-    private int isEnTransPush;
-    private int transPushResolution;
+    // 录像下载功能 属性
+    private static Map<Long, Mp4Extractor> mExtractorMap = new HashMap<>();
+    private static String[] filesPath = new String[8];
 
     public Device(Context c) {
         context = c;
@@ -69,9 +66,9 @@ public class Device implements Pusher {
         System.loadLibrary("EasyGBSDevice");
     }
 
-    public native int setVideoFormat(int channelId, int codec, int width, int height, int frameRate);
+    public static native int setVideoFormat(int channelId, int codec, int width, int height, int frameRate);
 
-    public native int setAudioFormat(int channelId, int codec, int sampleRate, int channels, int bitPerSamples);
+    public static native int setAudioFormat(int channelId, int codec, int sampleRate, int channels, int bitPerSamples);
 
     /**
      * 创建链接
@@ -105,11 +102,11 @@ public class Device implements Pusher {
 
     public native int pushAudio(int channelId, int format, byte[] buffer, int frameSize, int nbSamples);
 
-    public native int pushRecordVideo(long recordPtr, int channelId, byte[] buffer, int frameSize, int keyframe);
+    public static native int pushRecordVideo(long recordPtr, int channelId, byte[] buffer, int frameSize, int keyframe);
 
-    public native int pushRecordAudio(long recordPtr, int channelId, byte[] buffer, int frameSize, int nbSamples);
+    public static native int pushRecordAudio(long recordPtr, int channelId, int format, byte[] buffer, int frameSize, int nbSamples);
 
-    public native int endRecordData(long recordPtr); //录像结束
+    public static native int endRecordData(long recordPtr); //录像结束
 
     public native int release();
 
@@ -139,6 +136,7 @@ public class Device implements Pusher {
             int setAudioFormatRe = -1;
             setVideoFormatRe = setVideoFormat(i, videoCodec, width, height, frameRate);
             setAudioFormatRe = setAudioFormat(i, audioCodec, sampleRate, channels, bitPerSamples);
+
             while ((setVideoFormatRe != 0) || (setAudioFormatRe != 0)) {
                 try {
                     Thread.sleep(500);
@@ -162,6 +160,7 @@ public class Device implements Pusher {
 
     @Override
     public void setAFormat(int codec, int sampleRate, int channels, int bitPerSamples) {
+
         this.audioCodec = codec;
         this.sampleRate = sampleRate;
         this.channels = channels;
@@ -233,7 +232,148 @@ public class Device implements Pusher {
                 pushed = true;
             } else if (OnInitPusherCallback.CODE.GB28181_DEVICE_EVENT_STOP_AUDIO_VIDEO == eventType) {
                 pushed = false;
+            } else if (OnInitPusherCallback.CODE.GB28181_DEVICE_EVENT_RECORD_START_AUDIO_VIDEO == eventType) {
+                if (filesPath[channelId] == null) {
+                    filesPath[channelId] = new File(context.getExternalFilesDir(null), "easygbd").getPath();
+                }
+                Mp4Extractor extractor = mExtractorMap.get(recordPtr);
+                if (extractor == null) {
+                    extractor = new Mp4Extractor();
+                    mExtractorMap.put(recordPtr, extractor);
+                }
+
+                Log.d(TAG, "recordPtr" + recordPtr);
+
+                setAudioFormat(channelId, AUDIO_CODEC_AAC, sampleRate, channelId, bitPerSamples);
+
+                extractor.start(filesPath[channelId], mGBProtocolDRParams.getStartTime(), mGBProtocolDRParams.getEndTime(), new Mp4Extractor.Callback() {
+                    @Override
+                    public void onVideoSample(byte[] data, int size, boolean isKeyFrame) {
+                        pushRecordVideo(recordPtr, channelId, data, size, isKeyFrame ? 1 : 0);
+                    }
+
+                    @Override
+                    public void onAudioSample(byte[] data, int size) {
+                        Log.d(TAG, "onAudioSample " + size + " ,recordPtr " + recordPtr);
+                        pushRecordAudio(recordPtr, channelId, AUDIO_CODEC_AAC, data, size, size);
+                    }
+
+                    @Override
+                    public void onMediaInfo(Mp4Extractor.MediaInfo info, String path) {
+                        Log.d(TAG, "path = " + path + "\n MediaInfo = " + info.toString());
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        endRecordData(recordPtr); //录像播放完成
+                        // 清理资源
+                        Mp4Extractor completedExtractor = mExtractorMap.remove(recordPtr);
+                        if (completedExtractor != null) completedExtractor.destroy();
+                        Log.d(TAG, "解析完成 通道 ：" + channelId + ", recordPtr = " + recordPtr);
+
+                        setAudioFormat(channelId, audioCodec, sampleRate, channelId, bitPerSamples);
+                    }
+
+                    @Override
+                    public void onCanceled() {
+                        // 清理资源
+                        Mp4Extractor canceledExtractor = mExtractorMap.remove(recordPtr);
+                        if (canceledExtractor != null) {
+                            canceledExtractor.destroy();
+                        }
+                        Log.d(TAG, "解析取消, recordPtr = " + recordPtr);
+                    }
+                });
+
+            } else if (OnInitPusherCallback.CODE.GB28181_DEVICE_EVENT_RECORD_STOP_AUDIO_VIDEO == eventType) {
+                Mp4Extractor extractor = mExtractorMap.get(recordPtr);
+                if (extractor != null) {
+                    extractor.destroy();
+                    mExtractorMap.remove(recordPtr);
+                    Log.d(TAG, "停止录像... recordPtr = " + recordPtr);
+                }
+            } else if (OnInitPusherCallback.CODE.GB28181_DEVICE_EVENT_RECORD_SCALE_AUDIO_VIDEO == eventType) {
+                Mp4Extractor extractor = mExtractorMap.get(recordPtr);
+                if (extractor != null) {
+                    extractor.setPlaySpeed(mGBProtocolDRParams.getPlaySpeed());
+                    Log.d(TAG, "倍速 x" + mGBProtocolDRParams.getPlaySpeed() + ", recordPtr = " + recordPtr);
+                }
+            } else if (OnInitPusherCallback.CODE.GB28181_DEVICE_EVENT_RECORD_PLAY_AUDIO_VIDEO == eventType) {
+                Mp4Extractor extractor = mExtractorMap.get(recordPtr);
+                if (extractor != null) {
+                    extractor.resume();
+                    Log.d(TAG, "恢复播放, recordPtr = " + recordPtr);
+                }
+
+            } else if (OnInitPusherCallback.CODE.GB28181_DEVICE_EVENT_RECORD_PAUSE_AUDIO_VIDEO == eventType) {
+                Mp4Extractor extractor = mExtractorMap.get(recordPtr);
+                if (extractor != null) {
+                    extractor.pause();
+                    Log.d(TAG, "暂停播放, recordPtr = " + recordPtr);
+                }
+            } else if (OnInitPusherCallback.CODE.GB28181_DEVICE_EVENT_RECORD_START_DOWNLOAD_AUDIO_VIDEO == eventType) {
+
+                // 初始化文件路径
+                if (filesPath[channelId] == null) {
+                    filesPath[channelId] = new File(context.getExternalFilesDir(null), "easygbd").getPath();
+                }
+
+                // 先检查Map中是否已存在对应的Mp4Extractor
+                Mp4Extractor extractor = mExtractorMap.get(recordPtr);
+                if (extractor == null) {
+                    // 不存在则创建新的
+                    extractor = new Mp4Extractor();
+                    mExtractorMap.put(recordPtr, extractor);
+                    Log.d(TAG, "创建新的Mp4Extractor, recordPtr = " + recordPtr);
+                }
+                extractor.setPlaySpeed(mGBProtocolDRParams.getDownloadSpeed()); //设置下载速度
+
+                //TODO 要重创建 新的方法 未实现
+                setAudioFormat(channelId, AUDIO_CODEC_AAC, sampleRate, channelId, bitPerSamples);
+                setVideoFormat(channelId, videoCodec, width, height, (int) Math.floor(frameRate * 0.9));
+
+                extractor.start(filesPath[channelId], mGBProtocolDRParams.getStartTime(), mGBProtocolDRParams.getEndTime(), true, new Mp4Extractor.Callback() {
+                    @Override
+                    public void onVideoSample(byte[] data, int size, boolean isKeyFrame) {
+                        pushRecordVideo(recordPtr, channelId, data, size, isKeyFrame ? 1 : 0);
+                    }
+
+                    @Override
+                    public void onAudioSample(byte[] data, int size) {
+                        // 处理音频数据
+//                        pushRecordAudio(recordPtr, channelId, AUDIO_CODEC_AAC, data, size, size);
+                    }
+
+                    @Override
+                    public void onMediaInfo(Mp4Extractor.MediaInfo info, String path) {
+                        Log.d(TAG, "path = " + path + "\n MediaInfo = " + info.toString());
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG, "解析完成 通道 ：" + channelId + ", recordPtr = " + recordPtr);
+                        endRecordData(recordPtr); //录像播放完成
+                    }
+
+                    @Override
+                    public void onCanceled() {
+                        Mp4Extractor canceledExtractor = mExtractorMap.remove(recordPtr);
+                        if (canceledExtractor != null) canceledExtractor.destroy();
+                        Log.d(TAG, "解析取消, recordPtr = " + recordPtr);
+                    }
+                });
+
+
+            } else if (OnInitPusherCallback.CODE.GB28181_DEVICE_EVENT_RECORD_STOP_DOWNLOAD_AUDIO_VIDEO == eventType) {
+                Mp4Extractor downloadExtractor = mExtractorMap.remove(recordPtr);
+                if (downloadExtractor != null) downloadExtractor.destroy();
+                Log.d(TAG, "录像下载完成 = " + recordPtr);
+
+                setAudioFormat(channelId, audioCodec, sampleRate, channelId, bitPerSamples);
+                setVideoFormat(channelId, videoCodec, width, height, frameRate);
             }
+
+
         }
     }
 
@@ -360,6 +500,18 @@ public class Device implements Pusher {
 
                     case GB28181_DEVICE_EVENT_FIND_RECORD:
                         res = "录像查询：" + params.toString();
+                        break;
+                    case GB28181_DEVICE_EVENT_RECORD_START_AUDIO_VIDEO:
+                        res = "录像播放开始：" + params.toString();
+                        break;
+                    case GB28181_DEVICE_EVENT_RECORD_STOP_AUDIO_VIDEO:
+                        res = "录像播放结束：" + params.toString();
+                        break;
+                    case GB28181_DEVICE_EVENT_RECORD_START_DOWNLOAD_AUDIO_VIDEO:
+                        res = "录像下载：" + params.toString();
+                        break;
+                    case GB28181_DEVICE_EVENT_RECORD_STOP_DOWNLOAD_AUDIO_VIDEO:
+                        res = "录像下载结束：" + params.toString();
                         break;
                     default:
                         res = "";

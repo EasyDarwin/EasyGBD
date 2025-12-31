@@ -78,7 +78,7 @@ public class HWConsumer extends Thread implements VideoConsumer {
         this.mHeight = height;
 
         if (mPusher != null) {
-            mPusher.setVFormat((mMime == MediaFormat.MIMETYPE_VIDEO_AVC) ? Device.VIDEO_CODEC_H264 : Device.VIDEO_CODEC_H265, width, height, bitrateKbps);
+            mPusher.setVFormat((mMime == MediaFormat.MIMETYPE_VIDEO_AVC) ? Device.VIDEO_CODEC_H264 : Device.VIDEO_CODEC_H265, width, height, SPUtil.getFramerate(mContext));
         }
 
         startMediaCodec();

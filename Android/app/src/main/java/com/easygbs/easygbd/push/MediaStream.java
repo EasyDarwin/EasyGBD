@@ -105,8 +105,6 @@ public class MediaStream {
 
     BlockingQueue<byte[]> cache = new ArrayBlockingQueue<byte[]>(100);
 
-    public SimpleDateFormat ymdhm = new SimpleDateFormat("yyyyMMddHHmmssSSS", Locale.CHINA);
-
     /*
      0:Camera.CameraInfo.CAMERA_FACING_BACK
      1:Camera.CameraInfo.CAMERA_FACING_FRONT
@@ -127,7 +125,7 @@ public class MediaStream {
     private int channelid = 0;
 
     //录像时间
-    private long durationMillis = 5 * 60 * 1000; //五分钟
+    private long durationMillis = 60 * 60 * 1000; //三十分钟
 
     Camera mCamera;
     private Camera.CameraInfo camInfo;
@@ -558,13 +556,9 @@ public class MediaStream {
         if (mCamera == null) {
             return;
         }
-         //CH1_  指的是哪个通道 
-        File mFile = new File(recordPath, "CH1_" + ymdhm.format(new Date()));
-        String mFilePath = mFile.toString();
 
-        Log.i("EasyGBD", mFile.getPath());
-
-        mEasyMuxer = new EasyMuxer(recordPath, mFilePath, durationMillis, mTheRecordStatusListener);
+        //CH1_  指的是哪个通道 1代表1通道 以此内推
+        mEasyMuxer = new EasyMuxer(0, recordPath, durationMillis, mTheRecordStatusListener);
 
         mRecordVC = new RecordVideoConsumer(context, mHevc ? MediaFormat.MIMETYPE_VIDEO_HEVC : MediaFormat.MIMETYPE_VIDEO_AVC, mEasyMuxer, SPUtil.getEnableVideoOverlay(context), SPUtil.getBitrateKbps(context), info.mName, info.mColorFormat, channelid, Constant.Root);
         mRecordVC.onVideoStart(frameWidth, frameHeight);

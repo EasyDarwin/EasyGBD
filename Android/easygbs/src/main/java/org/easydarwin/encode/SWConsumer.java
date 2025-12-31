@@ -1,13 +1,18 @@
 package org.easydarwin.encode;
+
 import android.content.Context;
 import android.media.MediaFormat;
 import android.os.Environment;
 import android.util.Log;
+
 import com.easygbs.Device;
+
 import org.easydarwin.muxer.EasyMuxer;
 import org.easydarwin.push.Pusher;
 import org.easydarwin.sw.JNIUtil;
 import org.easydarwin.sw.X264Encoder;
+import org.easydarwin.util.SPUtil;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -15,9 +20,9 @@ import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
-   X264Encoder视频软编码器
-   Created by apple on 2017/5/13.
-*/
+ * X264Encoder视频软编码器
+ * Created by apple on 2017/5/13.
+ */
 public class SWConsumer extends Thread implements VideoConsumer {
     private static final String TAG = SWConsumer.class.getSimpleName();
 
@@ -41,12 +46,12 @@ public class SWConsumer extends Thread implements VideoConsumer {
     private ArrayBlockingQueue<byte[]> yuv_caches = new ArrayBlockingQueue<byte[]>(10);
     private String path;
 
-    public SWConsumer(Context context, Pusher pusher, int bitrateKbps,int channelid,String path) {
+    public SWConsumer(Context context, Pusher pusher, int bitrateKbps, int channelid, String path) {
         this.context = context;
         mPusher = pusher;
         this.bitrateKbps = bitrateKbps;
-        this.channelid=channelid;
-        this.path=path;
+        this.channelid = channelid;
+        this.path = path;
     }
 
     @Override
@@ -73,7 +78,7 @@ public class SWConsumer extends Thread implements VideoConsumer {
                 yuv_caches.offer(data);
 
                 if (mPusher != null) {
-                    mPusher.pushV(channelid,h264, outLen[0], keyFrame ? 1 : 0);
+                    mPusher.pushV(channelid, h264, outLen[0], keyFrame ? 1 : 0);
 
                     //save(h264,outLen[0]);
                 }
@@ -88,8 +93,9 @@ public class SWConsumer extends Thread implements VideoConsumer {
         this.mWidth = width;
         this.mHeight = height;
 
+
         if (mPusher != null) {
-            mPusher.setVFormat(Device.VIDEO_CODEC_H264,width,height,bitrateKbps);
+            mPusher.setVFormat(Device.VIDEO_CODEC_H264, width, height, SPUtil.getFramerate(this.context));
         }
 
         x264 = new X264Encoder();
@@ -111,7 +117,7 @@ public class SWConsumer extends Thread implements VideoConsumer {
             if (time >= 0) {
                 time = millisPerFrame - time;
 
-                if (time > 0){
+                if (time > 0) {
                     Thread.sleep(time / 2);
                 }
             }
@@ -172,29 +178,29 @@ public class SWConsumer extends Thread implements VideoConsumer {
         }
     }
 
-    private void save(byte[] h264byteArr,int length){
+    private void save(byte[] h264byteArr, int length) {
         File file = new File(path);
         boolean existsRe = file.exists();
-        if (!existsRe){
+        if (!existsRe) {
             boolean mkdirsRe = file.mkdirs();
         }
 
-        save2path(h264byteArr,0,length,path + "/sw_264.h264",true);
+        save2path(h264byteArr, 0, length, path + "/sw_264.h264", true);
     }
 
-    private static void save2path(byte[] buffer,int offset,int length,String path,boolean append){
+    private static void save2path(byte[] buffer, int offset, int length, String path, boolean append) {
         FileOutputStream fos = null;
-        try{
+        try {
             fos = new FileOutputStream(path, append);
             fos.write(buffer, offset, length);
-        }catch(Exception e){
-            Log.e(TAG,"save2path  Exception  "+e.toString());
-        }finally{
-            if(fos != null){
-                try{
+        } catch (Exception e) {
+            Log.e(TAG, "save2path  Exception  " + e.toString());
+        } finally {
+            if (fos != null) {
+                try {
                     fos.close();
-                }catch(Exception e){
-                    Log.e(TAG,"save2path  finally  Exception  "+e.toString());
+                } catch (Exception e) {
+                    Log.e(TAG, "save2path  finally  Exception  " + e.toString());
                 }
             }
         }
