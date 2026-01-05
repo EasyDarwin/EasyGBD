@@ -7,6 +7,7 @@
 #include "EasyGBD_Demo.h"
 #include "EasyGBD_DemoDlg.h"
 #include "afxdialogex.h"
+#include "XmlConfig.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -82,6 +83,38 @@ END_MESSAGE_MAP()
 
 // CEasyGBDDemoDlg 消息处理程序
 
+bool MByteToWChar(LPCSTR lpcszStr, LPWSTR lpwszStr, DWORD dwSize)
+{
+	// Get the required size of the buffer that receives the Unicode
+	// string.
+	DWORD dwMinSize;
+	dwMinSize = MultiByteToWideChar(CP_ACP, 0, lpcszStr, -1, NULL, 0);
+
+	if (dwSize < dwMinSize)
+	{
+		return false;
+	}
+
+	// Convert headers from ASCII to Unicode.
+	MultiByteToWideChar(CP_ACP, 0, lpcszStr, -1, lpwszStr, dwMinSize);
+	return true;
+}
+
+void SetEditText(char* str, CEdit* pEdt)
+{
+	wchar_t wszText[MAX_PATH] = { 0 };
+	MByteToWChar(str, wszText, sizeof(wszText) / sizeof(wszText[0]));
+
+	pEdt->SetWindowTextW(wszText);
+}
+void SetEditText(int value, CEdit* pEdt)
+{
+	wchar_t wszText[MAX_PATH] = { 0 };
+	wsprintf(wszText, TEXT("%d"), value);
+
+	pEdt->SetWindowTextW(wszText);
+}
+
 BOOL CEasyGBDDemoDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
@@ -115,6 +148,7 @@ BOOL CEasyGBDDemoDlg::OnInitDialog()
 
 	SetWindowText(TEXT("EasyGBD_Demo"));
 
+	pComboxProtocolType = (CComboBox*)GetDlgItem(IDC_COMBO_PROTOCOL_TYPE);
 	pEdtServerSipID = (CEdit*)GetDlgItem(IDC_EDIT_SERVER_SIPID);
 	pEdtServerIP = (CEdit*)GetDlgItem(IDC_EDIT_SERVER_IP);
 	pEdtServerPort = (CEdit*)GetDlgItem(IDC_EDIT_SERVER_PORT);
@@ -132,6 +166,10 @@ BOOL CEasyGBDDemoDlg::OnInitDialog()
 	pBtnShutdown = (CButton*)GetDlgItem(IDC_BUTTON_SHUTDOWN);
 	pRichEditLog = (CRichEditCtrl*)GetDlgItem(IDC_RICHEDIT2_LOG);
 
+
+	pComboxProtocolType->AddString(TEXT("GB/T28181"));
+	pComboxProtocolType->AddString(TEXT("国网B"));
+	pComboxProtocolType->SetCurSel(0);
 
 	pEdtServerSipID->SetWindowTextW(TEXT("34020000002000000001"));
 	pEdtServerIP->SetWindowTextW(TEXT("demo.easygbs.com"));
@@ -162,8 +200,9 @@ BOOL CEasyGBDDemoDlg::OnInitDialog()
 	pEdtLocalSipID->SetWindowTextW(wszRandSipID);// TEXT("34020000001110000009"));
 	pEdtLocalPort->SetWindowTextW(TEXT("15090"));
 	pEdtDeviceName->SetWindowTextW(wszDeviceName);
-	pEdtSourceURL->SetWindowTextW(TEXT("G:/VideoSamples/Alizee_La_Isla_Bonita_Mixiran_Arash.avi"));
-
+#ifdef _DEBUG
+	pEdtSourceURL->SetWindowTextW(TEXT("G:/test3.mp4"));
+#endif
 
 	wchar_t wszPath[128] = { 0 };
 	GetModuleFileName(NULL, wszPath, sizeof(wszPath));
@@ -181,7 +220,35 @@ BOOL CEasyGBDDemoDlg::OnInitDialog()
 	}
 
 	wcscat(wszPath, TEXT("EasyDarwin.mp4"));
+#ifndef _DEBUG
 	pEdtSourceURL->SetWindowTextW(wszPath);
+#endif
+
+
+	// ===================
+	// 从配置文件中加载
+	XmlConfig	cfg;
+	XML_CONFIG_T	config;
+	cfg.LoadConfig(SERVER_CONFIG_FILENAME, &config);
+	pComboxProtocolType->SetCurSel(config.SipType);
+	SetEditText(config.serverSipID, pEdtServerSipID);
+	SetEditText(config.serverIP, pEdtServerIP);
+
+	SetEditText(config.serverSipPort, pEdtServerPort);
+	SetEditText(config.registerExpire, pEdtRegExpire);
+	SetEditText(config.heartbeatCount, pEdtHeartbeatCount);
+	SetEditText(config.heartbeatInterval, pEdtHeartbeatInterval);
+
+	if ((0 == strcmp(config.protocol, "tcp")) || (0 == strcmp(config.protocol, "TCP")))
+		pComboxProtocol->SetCurSel(1);
+	else
+		pComboxProtocol->SetCurSel(0);
+
+	SetEditText(config.password, pEdtPassword);
+	SetEditText(config.localSipID, pEdtLocalSipID);
+	SetEditText(config.localPort, pEdtLocalPort);
+	SetEditText(config.deviceName, pEdtDeviceName);
+	SetEditText(config.sourcePath, pEdtSourceURL);
 
 	OnBnClickedButtonShutdown();
 
@@ -239,22 +306,6 @@ HCURSOR CEasyGBDDemoDlg::OnQueryDragIcon()
 
 
 
-bool MByteToWChar(LPCSTR lpcszStr, LPWSTR lpwszStr, DWORD dwSize)
-{
-	// Get the required size of the buffer that receives the Unicode
-	// string.
-	DWORD dwMinSize;
-	dwMinSize = MultiByteToWideChar(CP_ACP, 0, lpcszStr, -1, NULL, 0);
-
-	if (dwSize < dwMinSize)
-	{
-		return false;
-	}
-
-	// Convert headers from ASCII to Unicode.
-	MultiByteToWideChar(CP_ACP, 0, lpcszStr, -1, lpwszStr, dwMinSize);
-	return true;
-}
 bool WCharToMByte(LPCWSTR lpcwszStr, LPSTR lpszStr, DWORD dwSize)
 {
 	DWORD dwMinSize;
@@ -396,6 +447,8 @@ void CEasyGBDDemoDlg::OutputLog2UI()
 
 int CALLBACK __GB28181DeviceCALLBACK(void* userPtr, int channelId, int eventType, char* eventParams, int paramLength)
 {
+	if (channelId < 0)		return 0;
+
 	GB28181_DEVICE_T* pGB28181Device = (GB28181_DEVICE_T*)userPtr;
 	GB28181_CHANNEL_T* pChannel = &pGB28181Device->pChannel[channelId];
 
@@ -411,6 +464,10 @@ int CALLBACK __GB28181DeviceCALLBACK(void* userPtr, int channelId, int eventType
 	else if (GB28181_DEVICE_EVENT_REGISTER_ING == eventType)
 	{
 		pThis->OutputLog("GB/T28181 注册中....\n");
+	}
+	else if (GB28181_DEVICE_EVENT_REGISTER_TIMEOUT == eventType)
+	{
+		pThis->OutputLog("GB/T28181 注册超时....\n");
 	}
 	if (GB28181_DEVICE_EVENT_REGISTER_OK == eventType)
 	{
@@ -433,7 +490,7 @@ int CALLBACK __GB28181DeviceCALLBACK(void* userPtr, int channelId, int eventType
 	}
 	else if (GB28181_DEVICE_EVENT_TALK_AUDIO_DATA == eventType)
 	{
-		pThis->OutputLog("GB/T28181 音频对讲数据...\n");
+		pThis->OutputLog("GB/T28181 音频对讲数据...  size:%d\n", paramLength);
 
 		static FILE* f = fopen("1_talk.pcm", "wb");
 		if (f)
@@ -642,6 +699,9 @@ int		CEasyGBDDemoDlg::Startup(const char* serverSIPId, const char* serverIP, con
 					strcpy(gb28181DeviceInfo.device_name, deviceName);// "GB/T28181 Client");
 
 					gb28181DeviceInfo.version = 0;
+					gb28181DeviceInfo.sip_type = pComboxProtocolType->GetCurSel();
+
+
 					strcpy(gb28181DeviceInfo.server_id, serverSIPId);
 					memcpy(gb28181DeviceInfo.server_domain, gb28181DeviceInfo.server_id, 10);
 					strcpy(gb28181DeviceInfo.server_ip, serverIP);
@@ -725,7 +785,7 @@ int		CEasyGBDDemoDlg::Startup(const char* serverSIPId, const char* serverIP, con
 
 			GB28181_DEVICE_INFO_T   gb28181DeviceInfo;
 			memset(&gb28181DeviceInfo, 0x00, sizeof(GB28181_DEVICE_INFO_T));
-			strcpy(gb28181DeviceInfo.device_name, deviceName); //"GB/T28181 Client");
+			strcpy(gb28181DeviceInfo.device_name, deviceName);
 
 			gb28181DeviceInfo.version = 0;
 			strcpy(gb28181DeviceInfo.server_id, serverSIPId);
