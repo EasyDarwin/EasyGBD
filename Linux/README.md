@@ -1,1 +1,1 @@
-EasyGBD Linux_x64°æ±¾¿â
+EasyGBD Linux_x64
