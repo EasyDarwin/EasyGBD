@@ -724,9 +724,9 @@ int		CEasyGBDDemoDlg::Startup(const char* serverSIPId, const char* serverIP, con
 						sprintf(gb28181DeviceInfo.channel[i].id, "%s1310%06d", gb28181DeviceInfo.server_domain, i + 1);
 						//sprintf(gb28181DeviceInfo.channel[i].name, "ch %02d", i + 1);
 						strcpy(gb28181DeviceInfo.channel[i].name, "EasyIPC");
-						strcpy(gb28181DeviceInfo.channel[i].model, "IPCamera");
+						strcpy(gb28181DeviceInfo.channel[i].model, "EasyGBD");
 						sprintf(gb28181DeviceInfo.channel[i].owner, "Owner %02d", i + 1);
-						strcpy(gb28181DeviceInfo.channel[i].manufacturer, "Easy");
+						strcpy(gb28181DeviceInfo.channel[i].manufacturer, "TSINGSEE");
 						gb28181DeviceInfo.channel[i].longitude = (double)i + 100;
 						gb28181DeviceInfo.channel[i].latitude = (double)i + 10;
 					}
