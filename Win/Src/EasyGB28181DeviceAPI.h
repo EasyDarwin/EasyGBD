@@ -23,9 +23,9 @@
 #define CALLBACK
 #endif
 
-//#ifdef __cplusplus
-//extern "C" {
-//#endif // __cplusplus
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
 
 typedef enum __GB28181_DEVICE_EVENT_TYPE_ENUM_T
 {
@@ -52,11 +52,38 @@ typedef enum __GB28181_DEVICE_EVENT_TYPE_ENUM_T
 	GB28181_DEVICE_EVENT_PTZ_ZOOM_IN,			// 云台-拉近
 	GB28181_DEVICE_EVENT_PTZ_ZOOM_OUT,			// 云台-拉远
 
+	GB28181_DEVICE_EVENT_FIND_RECORD,			// 录像文件查询
+	GB28181_DEVICE_EVENT_RECORD_START_AUDIO_VIDEO,		//请求回放推送音视频
+	GB28181_DEVICE_EVENT_RECORD_STOP_AUDIO_VIDEO,		//请求回放停止推送音视频
+	GB28181_DEVICE_EVENT_RECORD_SCALE_AUDIO_VIDEO, // 录像倍数
+
+	GB28181_DEVICE_EVENT_RECORD_PLAY_AUDIO_VIDEO, // 录像恢复播放
+	GB28181_DEVICE_EVENT_RECORD_PAUSE_AUDIO_VIDEO, // 录像暂停播放
+
+	GB28181_DEVICE_EVENT_RECORD_START_DOWNLOAD_AUDIO_VIDEO, // 开始录像下载
+	GB28181_DEVICE_EVENT_RECORD_STOP_DOWNLOAD_AUDIO_VIDEO, // 停止录像下载
 
 }GB28181_DEVICE_EVENT_TYPE_ENUM_T;
 
 #define MAX_CH_NUMS     8
+typedef struct __GB28181_RECORD_INFO_T
+{
+	int     Secrecy;			// 保密属性 0
+	int     FileSize;			// 录像文件大小
+	char    Type[16];			// 录像产生类型 time
+	char	StartTime[32];		// 录像开始时间(格式:2025-04-04T01:02:03)
+	char	EndTime[32];		// 录像结束时间(格式:2025-04-04T01:02:03)
+	char	Name[100];			// 录像文件名
+}GB28181_RECORD_INFO_T;
+typedef struct __GB28181_RECORD_RES_T
+{
+	int						SumNum;				// 查询结果总数;对应RecordList内存
+	char					StartTime[32];		// 查询录像开始时间(格式:2025-04-04T01:02:03)
+	char					EndTime[32];		// 查询录像结束时间(格式:2025-04-04T01:02:03)
+	char					DeviceID[100];		// 设备ID
 
+	GB28181_RECORD_INFO_T*	RecordList;			// 录像列表; 回调使用malloc申请内存, 内部自动释放
+}GB28181_RECORD_RES_T;
 
 typedef struct __GB28181_CHANNEL_INFO_T
 {
@@ -97,7 +124,7 @@ typedef struct __GB28181_DEVICE_INFO_T
 	int		sip_type;			// 0 - GB28181; 1 - 国网B
 }GB28181_DEVICE_INFO_T;
 
-typedef int (CALLBACK* GB28181DeviceCALLBACK)(void *userPtr, int channelId, int eventType, char *eventParams, int paramLength);
+typedef int (CALLBACK* GB28181DeviceCALLBACK)(void *userPtr, void *recordPtr, int channelId, int eventType, char *eventParams, int paramLength);
 
 
 //创建GB28181设备端资源
@@ -164,14 +191,46 @@ nbsamples:	同音频帧大小
 */
 int GB28181DEVICE_API	libGB28181Device_AddAudioData(int channelId, unsigned int audioSrcCodec, char* framedata, int framesize, int nbsamples);
 
+//推送录像视频数据
+/*
+recordPtr:	录像句柄(从回调中获得, GB28181_DEVICE_EVENT_RECORD_START_AUDIO_VIDEO或GB28181_DEVICE_EVENT_RECORD_START_DOWNLOAD_AUDIO_VIDEO == eventType)
+channelId:	通道id
+framedata:	视频帧数据
+framesize:	视频帧大小
+keyframe:	关键帧填1, 否则填0
+*/
+int GB28181DEVICE_API   libGB28181Device_AddRecordVideoData(void* recordPtr, int channelId, char* framedata, int framesize, int keyframe);
+
+//推送录像音频数据
+/*
+audioSrcCodec:	当前音频源格式
+		#define EASY_SDK_AUDIO_CODEC_G711U	0x10006		// G711 ulaw
+		#define EASY_SDK_AUDIO_CODEC_G711A	0x10007		// G711 alaw
+		#define EASY_SDK_AUDIO_CODEC_PCM	0x00007		// PCM
+
+		如果audioSrcCodec和libGB28181Device_SetAudioFormat中指定的audioDstCodec不一致时, 则会自动进行转换,
+		但仅限于从PCM转为G711,即此处的audioSrcCodec为PCM, 而audioDstCodec为G711
+recordPtr:	录像句柄(从回调中获得, GB28181_DEVICE_EVENT_RECORD_START_AUDIO_VIDEO或GB28181_DEVICE_EVENT_RECORD_START_DOWNLOAD_AUDIO_VIDEO == eventType)
+channelId:	通道id
+framedata:	音频帧数据
+framesize:  音频帧大小
+nbsamples:	同音频帧大小
+*/
+int GB28181DEVICE_API   libGB28181Device_AddRecordAudioData(void* recordPtr, int channelId, unsigned int codec, char* framedata, int framesize, int nbsamples);
+
+//推送录像数据结束
+/*
+recordPtr:	录像句柄(从回调中获得, GB28181_DEVICE_EVENT_RECORD_START_AUDIO_VIDEO或GB28181_DEVICE_EVENT_RECORD_START_DOWNLOAD_AUDIO_VIDEO == eventType)
+*/
+int GB28181DEVICE_API	libGB28181Device_RecordDataEnd(void* recordPtr);
 
 //释放资源
 int GB28181DEVICE_API	libGB28181Device_Release();
 
 
-//#ifdef __cplusplus
-//}
-//#endif // __cplusplus
+#ifdef __cplusplus
+}
+#endif // __cplusplus
 
 #ifdef ANDROID
 #include <jni.h>

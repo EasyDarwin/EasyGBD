@@ -445,7 +445,7 @@ void CEasyGBDDemoDlg::OutputLog2UI()
 
 
 
-int CALLBACK __GB28181DeviceCALLBACK(void* userPtr, int channelId, int eventType, char* eventParams, int paramLength)
+int CALLBACK __GB28181DeviceCALLBACK(void* userPtr, void* recordPtr, int channelId, int eventType, char* eventParams, int paramLength)
 {
 	if (channelId < 0)		return 0;
 
