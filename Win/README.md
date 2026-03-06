@@ -1,4 +1,4 @@
-\## EasyGBD Windows调用示例
+## EasyGBD Windows调用示例
 
 
 
@@ -8,7 +8,7 @@ Windows平台GB28181设备端，使用①本机Camera和Microphone ②拉取RTSP
 
 
 
-\### 编译方法
+### 编译方法
 
 使用Microsoft Visual Studio打开示例源码中的sln文件
 
