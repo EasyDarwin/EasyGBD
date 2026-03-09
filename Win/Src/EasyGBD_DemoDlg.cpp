@@ -1,0 +1,1561 @@
+﻿
+// EasyGBD_DemoDlg.cpp: 实现文件
+//
+
+#include "pch.h"
+#include "framework.h"
+#include "EasyGBD_Demo.h"
+#include "EasyGBD_DemoDlg.h"
+#include "afxdialogex.h"
+
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
+
+static COLORREF SUCCESS_COLOR = RGB(103, 194, 58);
+static COLORREF DANGER_COLOR = RGB(245, 108, 108);
+
+
+
+// 用于应用程序“关于”菜单项的 CAboutDlg 对话框
+
+class CAboutDlg : public CDialogEx
+{
+public:
+	CAboutDlg();
+
+// 对话框数据
+#ifdef AFX_DESIGN_TIME
+	enum { IDD = IDD_ABOUTBOX };
+#endif
+
+	protected:
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
+
+// 实现
+protected:
+	DECLARE_MESSAGE_MAP()
+};
+
+CAboutDlg::CAboutDlg() : CDialogEx(IDD_ABOUTBOX)
+{
+}
+
+void CAboutDlg::DoDataExchange(CDataExchange* pDX)
+{
+	CDialogEx::DoDataExchange(pDX);
+}
+
+BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
+END_MESSAGE_MAP()
+
+
+// CEasyGBDDemoDlg 对话框
+
+
+
+CEasyGBDDemoDlg::CEasyGBDDemoDlg(CWnd* pParent /*=nullptr*/)
+	: CDialogEx(IDD_EASYGBD_DEMO_DIALOG, pParent)
+{
+	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+	pGBDVideoDlg = NULL;
+
+	InitMutex(&mLogMutex);
+	memset(&mGB28181Device, 0x00, sizeof(GB28181_DEVICE_T));
+
+	//memset(&mGB28181DeviceList, 0x00, sizeof(GB28181_DEVICE_LIST_T));
+
+	sourceType = -1;
+	InitMutex(&mutexLocalFrame);
+	isPreview = false;
+	streamClientHandle = NULL;
+	pRenderThread = NULL;
+	memset(&localVideoRender, 0x00, sizeof(localVideoRender));
+}
+
+void CEasyGBDDemoDlg::DoDataExchange(CDataExchange* pDX)
+{
+	CDialogEx::DoDataExchange(pDX);
+}
+
+BEGIN_MESSAGE_MAP(CEasyGBDDemoDlg, CDialogEx)
+	ON_WM_SYSCOMMAND()
+	ON_WM_PAINT()
+	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON_STARTUP, &CEasyGBDDemoDlg::OnBnClickedButtonStart)
+	ON_WM_DESTROY()
+	ON_BN_CLICKED(IDC_BUTTON_SHUTDOWN, &CEasyGBDDemoDlg::OnBnClickedButtonShutdown)
+	ON_BN_CLICKED(IDC_BUTTON_BROWSE, &CEasyGBDDemoDlg::OnBnClickedButtonBrowse)
+	ON_MESSAGE(WM_UPDATE_LOG, OnUpdateLog)
+	ON_CBN_SELCHANGE(IDC_COMBO_SOURCE_TYPE, &CEasyGBDDemoDlg::OnCbnSelchangeComboSourceType)
+	ON_BN_CLICKED(IDC_BUTTON_SET_LONG_LAT, &CEasyGBDDemoDlg::OnBnClickedButtonSetLongLat)
+	ON_BN_CLICKED(IDC_MFCBUTTON_BROWSE, &CEasyGBDDemoDlg::OnBnClickedMfcbuttonBrowse)
+	ON_BN_CLICKED(IDC_MFCBUTTON_STARTUP, &CEasyGBDDemoDlg::OnBnClickedMfcbuttonStartup)
+END_MESSAGE_MAP()
+
+
+// CEasyGBDDemoDlg 消息处理程序
+
+bool MByteToWChar(LPCSTR lpcszStr, LPWSTR lpwszStr, DWORD dwSize)
+{
+	// Get the required size of the buffer that receives the Unicode
+	// string.
+	DWORD dwMinSize;
+	dwMinSize = MultiByteToWideChar(CP_ACP, 0, lpcszStr, -1, NULL, 0);
+
+	if (dwSize < dwMinSize)
+	{
+		return false;
+	}
+
+	// Convert headers from ASCII to Unicode.
+	MultiByteToWideChar(CP_ACP, 0, lpcszStr, -1, lpwszStr, dwMinSize);
+	return true;
+}
+
+void SetEditText(char* str, CEdit* pEdt)
+{
+	wchar_t wszText[MAX_PATH] = { 0 };
+	MByteToWChar(str, wszText, sizeof(wszText) / sizeof(wszText[0]));
+
+	pEdt->SetWindowTextW(wszText);
+}
+void SetEditText(int value, CEdit* pEdt)
+{
+	wchar_t wszText[MAX_PATH] = { 0 };
+	wsprintf(wszText, TEXT("%d"), value);
+
+	pEdt->SetWindowTextW(wszText);
+}
+
+BOOL CEasyGBDDemoDlg::OnInitDialog()
+{
+	CDialogEx::OnInitDialog();
+
+	// 将“关于...”菜单项添加到系统菜单中。
+
+	// IDM_ABOUTBOX 必须在系统命令范围内。
+	ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
+	ASSERT(IDM_ABOUTBOX < 0xF000);
+
+	CMenu* pSysMenu = GetSystemMenu(FALSE);
+	if (pSysMenu != nullptr)
+	{
+		BOOL bNameValid;
+		CString strAboutMenu;
+		bNameValid = strAboutMenu.LoadString(IDS_ABOUTBOX);
+		ASSERT(bNameValid);
+		if (!strAboutMenu.IsEmpty())
+		{
+			pSysMenu->AppendMenu(MF_SEPARATOR);
+			pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
+		}
+	}
+
+	// 设置此对话框的图标。  当应用程序主窗口不是对话框时，框架将自动
+	//  执行此操作
+	SetIcon(m_hIcon, TRUE);			// 设置大图标
+	SetIcon(m_hIcon, FALSE);		// 设置小图标
+
+	// TODO: 在此添加额外的初始化代码
+
+	SetWindowText(TEXT("EasyGBD_Demo"));
+
+	if (pGBDVideoDlg == NULL)
+	{
+		pGBDVideoDlg = new EasyGBD_VideoDlg();
+		pGBDVideoDlg->Create(ID_GBD_DIALOG_VIDEO, this);
+	}
+	pGBDVideoDlg->ShowWindow(SW_SHOW);
+	CRect	rcDlg;
+	rcDlg.SetRect(20, 30, 560, 455);
+	pGBDVideoDlg->MoveWindow(&rcDlg);
+
+	pComboxProtocolType = (CComboBox*)GetDlgItem(IDC_COMBO_PROTOCOL_TYPE);
+	pEdtServerSipID = (CEdit*)GetDlgItem(IDC_EDIT_SERVER_SIPID);
+	pEdtServerSipDomain = (CEdit*)GetDlgItem(IDC_EDIT_SERVER_SIP_DOMAIN);
+	pEdtServerIP = (CEdit*)GetDlgItem(IDC_EDIT_SERVER_IP);
+	pEdtServerPort = (CEdit*)GetDlgItem(IDC_EDIT_SERVER_PORT);
+	pEdtRegExpire = (CEdit*)GetDlgItem(IDC_EDIT_REG_EXPIRE);
+	pEdtHeartbeatCount = (CEdit*)GetDlgItem(IDC_EDIT_HEARTBEAT_COUNT);
+	pEdtHeartbeatInterval = (CEdit*)GetDlgItem(IDC_EDIT_HEARTBEAT_INTERVAL);
+	pComboxProtocol = (CComboBox*)GetDlgItem(IDC_COMBO_PROTOCOL);
+	pEdtPassword = (CEdit*)GetDlgItem(IDC_EDIT_PASSWORD);
+	pEdtLocalSipID = (CEdit*)GetDlgItem(IDC_EDIT_LOCAL_SIPID);
+	pEdtLocalPort = (CEdit*)GetDlgItem(IDC_EDIT_LOCAL_PORT);
+	pEdtDeviceName = (CEdit*)GetDlgItem(IDC_EDIT_DEVICE_NAME);
+	pEdtSourceURL = (CEdit*)GetDlgItem(IDC_EDIT_SOURCE_URL);
+
+	pEdtChannel = (CEdit*)GetDlgItem(IDC_EDIT_CHANNLE);
+
+	pBtnStartup = (CButton*)GetDlgItem(IDC_BUTTON_STARTUP);
+
+	pMfcBtnStartup = (CMFCButton*)GetDlgItem(IDC_MFCBUTTON_STARTUP);
+	if (!mGB28181Device.isStart)
+	{
+		pMfcBtnStartup->m_bTransparent = FALSE;
+		pMfcBtnStartup->m_bDontUseWinXPTheme = TRUE;
+		pMfcBtnStartup->m_bDrawFocus = FALSE;
+		pMfcBtnStartup->SetFaceColor(SUCCESS_COLOR);
+		pMfcBtnStartup->SetWindowTextW(TEXT("开始"));
+	}
+	CFont* pFont = GetFont();
+	LOGFONT lf;
+	pFont->GetLogFont(&lf);
+	lf.lfHeight = 25;
+	m_MfcBtnStartupFontLarge.CreateFontIndirectW(&lf);
+	pMfcBtnStartup->SetFont(&m_MfcBtnStartupFontLarge);
+
+	pMfcBtnPreview = (CMFCButton*)GetDlgItem(IDC_MFCBUTTON_BROWSE);
+	if (!isPreview)
+	{
+		pMfcBtnPreview->m_bTransparent = FALSE;
+		pMfcBtnPreview->m_bDontUseWinXPTheme = TRUE;
+		pMfcBtnPreview->m_bDrawFocus = FALSE;
+		pMfcBtnPreview->SetFaceColor(SUCCESS_COLOR);
+		pMfcBtnPreview->SetWindowTextW(TEXT("开启预览"));
+	}
+
+	pBtnShutdown = (CButton*)GetDlgItem(IDC_BUTTON_SHUTDOWN);
+	pRichEditLog = (CRichEditCtrl*)GetDlgItem(IDC_RICHEDIT2_LOG);
+
+	pComboxSourceType = (CComboBox*)GetDlgItem(IDC_COMBO_SOURCE_TYPE);
+	pComboxCameraList = (CComboBox*)GetDlgItem(IDC_COMBO_CAMERA_LIST);
+	pComboxAudioList = (CComboBox*)GetDlgItem(IDC_COMBO_AUDIO_LIST);
+
+	CMFCLinkCtrl* linkCtrl = (CMFCLinkCtrl*)GetDlgItem(IDC_MFCLINK1);
+	linkCtrl->m_bDrawFocus = FALSE;
+
+	pComboxSourceType->AddString(TEXT("本机设备"));
+	pComboxSourceType->AddString(TEXT("网络串流"));
+	pComboxSourceType->SetCurSel(0);
+	pEdtSourceURL->ShowWindow(SW_HIDE);
+
+	pComboxProtocolType->AddString(TEXT("GB/T28181"));
+	//pComboxProtocolType->AddString(TEXT("国网B"));
+	pComboxProtocolType->SetCurSel(0);
+
+	pEdtServerSipID->SetWindowTextW(TEXT("34020000002000000001"));
+	pEdtServerSipDomain->SetWindowTextW(TEXT("3402000000"));
+	pEdtServerIP->SetWindowTextW(TEXT("demo.easygbs.com"));
+	//pEdtServerIP->SetWindowTextW(TEXT("192.168.0.77"));
+	//
+
+	time_t currentTime = time(NULL);
+	unsigned int randValue = currentTime & 0xFFFFF;
+
+	wchar_t wszRandSipID[32] = { 0 };
+	//wsprintf(wszRandSipID, TEXT("34020000001110%06d"), randValue);
+	wsprintf(wszRandSipID, TEXT("34020000002000000001"));
+	/*wchar_t wszDeviceName[32] = { 0 };
+	wsprintf(wszDeviceName, TEXT("EasyGBD-win-%06d"), randValue);*/
+	int sipIdLen = (int)wcslen(wszRandSipID);
+	for (int i = sipIdLen; i > 20; i--)
+	{
+		wszRandSipID[i - 1] = TEXT('\0');
+	}
+
+	pEdtServerPort->SetWindowTextW(TEXT("30310"));
+	pEdtRegExpire->SetWindowTextW(TEXT("3600"));
+	pEdtHeartbeatCount->SetWindowTextW(TEXT("3"));
+	pEdtHeartbeatInterval->SetWindowTextW(TEXT("60"));
+	pComboxProtocol->AddString(TEXT("UDP"));
+	pComboxProtocol->AddString(TEXT("TCP"));
+	pComboxProtocol->SetCurSel(0);
+	pEdtPassword->SetWindowTextW(TEXT("12345678"));
+	pEdtLocalSipID->SetWindowTextW(wszRandSipID);// TEXT("34020000001110000009"));
+	pEdtLocalPort->SetWindowTextW(TEXT("15090"));
+	//pEdtDeviceName->SetWindowTextW(wszDeviceName);
+#ifdef _DEBUG
+	pEdtSourceURL->SetWindowTextW(TEXT("G:/test3.mp4"));
+#endif
+
+	wchar_t wszPath[128] = { 0 };
+	GetModuleFileName(NULL, wszPath, sizeof(wszPath));
+	int nSize = (int)wcslen(wszPath);
+
+	int i = nSize;
+	for (i = nSize; i > 0; i--)
+	{
+		if ((unsigned char)wszPath[i] == '\\')
+		{
+			//wszPath[i] = '\0';
+			break;
+		}
+		wszPath[i] = '\0';
+	}
+
+	wcscat(wszPath, TEXT("rtsp://"));
+#ifndef _DEBUG
+	pEdtSourceURL->SetWindowTextW(wszPath);
+#endif
+
+
+	// ===================
+	// 从配置文件中加载
+	XmlConfig	cfg;
+	XML_CONFIG_T	config;
+	cfg.LoadConfig(SERVER_CONFIG_FILENAME, &config);
+	pComboxProtocolType->SetCurSel(config.SipType);
+	SetEditText(config.serverSipID, pEdtServerSipID);
+	SetEditText(config.serverDomain, pEdtServerSipDomain);
+	SetEditText(config.serverIP, pEdtServerIP);
+
+	SetEditText(config.serverSipPort, pEdtServerPort);
+	SetEditText(config.registerExpire, pEdtRegExpire);
+	SetEditText(config.heartbeatCount, pEdtHeartbeatCount);
+	SetEditText(config.heartbeatInterval, pEdtHeartbeatInterval);
+
+	if ((0 == strcmp(config.protocol, "tcp")) || (0 == strcmp(config.protocol, "TCP")))
+		pComboxProtocol->SetCurSel(1);
+	else
+		pComboxProtocol->SetCurSel(0);
+
+	SetEditText(config.password, pEdtPassword);
+	SetEditText(config.localSipID, pEdtLocalSipID);
+	SetEditText(config.localPort, pEdtLocalPort);
+	SetEditText(config.deviceName, pEdtDeviceName);
+	SetEditText(config.sourcePath, pEdtSourceURL);
+
+	SetEditText(config.channels.cid, pEdtChannel);
+
+	GetDlgItem(IDC_EDIT_LONG)->SetWindowTextW(TEXT("100.0"));
+	GetDlgItem(IDC_EDIT_LAT)->SetWindowTextW(TEXT("50.1"));
+
+	LoadLocalDevice();
+
+	OnBnClickedButtonShutdown();
+
+	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
+}
+
+void CEasyGBDDemoDlg::LoadLocalDevice()
+{
+	wchar_t wszName[64] = { 0 };
+	LOCAL_DEVICE_MAP::iterator itVideoDevice = LocalVideoDeviceMap.begin();
+	while (itVideoDevice != LocalVideoDeviceMap.end())
+	{
+		memset(wszName, 0x00, sizeof(wszName));
+
+		wchar_t wszCamera[64] = { 0 };
+		MByteToWChar(itVideoDevice->first.data(), wszCamera, sizeof(wszCamera) / sizeof(wszCamera[0]));
+
+		pComboxCameraList->AddString(wszCamera);
+		itVideoDevice++;
+	}
+	if (pComboxCameraList->GetCount() > 0) pComboxCameraList->SetCurSel(0);
+
+
+	libAudioCapturer_Init();
+	AUDIO_CAPTURER_DEVICE_MAP	audioCapturerDeviceMap;
+	libAudioCapturer_GetAudioCaptureDeviceList(&audioCapturerDeviceMap);
+	AUDIO_CAPTURER_DEVICE_MAP::iterator itAudioDevice = audioCapturerDeviceMap.begin();
+	while (itAudioDevice != audioCapturerDeviceMap.end())
+	{
+		memset(wszName, 0x00, sizeof(wszName));
+		MByteToWChar(itAudioDevice->second.description, wszName, sizeof(wszName) / sizeof(wszName[0]));
+
+		pComboxAudioList->AddString(wszName);
+		itAudioDevice++;
+	}
+	if (pComboxAudioList->GetCount() > 0) pComboxAudioList->SetCurSel(0);
+}
+
+int Easy_APICALL __EasyStreamClientCallBack(void* _channelPtr, int _frameType, void* pBuf, EASY_FRAME_INFO* _frameInfo)
+{
+	GB28181_CHANNEL_T* pChannel = (GB28181_CHANNEL_T*)_channelPtr;
+	CEasyGBDDemoDlg* pThis = (CEasyGBDDemoDlg*)pChannel->userptr;
+
+	if (_frameType == EASY_SDK_VIDEO_FRAME_FLAG)
+	{
+		//Sleep(33);
+		if (_frameInfo->codec == EASY_SDK_VIDEO_CODEC_RAWVIDEO)
+		{
+			_frameInfo->length = _frameInfo->width * _frameInfo->height * 3 / 2;
+			pThis->ProcessLocalVideoToQueue(pBuf, _frameInfo, 1);		// 将视频帧送入队列
+		}
+		else {
+			if (pChannel->videoCodec < 1 && (pChannel->mediaInfo.u32AudioCodec > 0 || pChannel->videoFrameNum > 25)
+				|| pChannel->videoCodec != _frameInfo->codec)
+			{
+				pThis->OutputLog("设置视频编码格式: %s\n", _frameInfo->codec == EASY_SDK_VIDEO_CODEC_H264 ? "H264" : "H265");
+
+				libGB28181Device_SetVideoFormat(pChannel->id, _frameInfo->codec, 0, 0, 0);
+				if (pThis->sourceType == 1)
+				{
+					libGB28181Device_SetAudioFormat(pChannel->id, pChannel->mediaInfo.u32AudioCodec,
+						pChannel->mediaInfo.u32AudioSamplerate,
+						pChannel->mediaInfo.u32AudioChannel > 2 ? 2 : pChannel->mediaInfo.u32AudioChannel,
+						pChannel->mediaInfo.u32AudioBitsPerSample);
+				}
+
+				//libGB28181Device_SetAudioFormat(pChannel->id, EASY_SDK_AUDIO_CODEC_AAC,//EASY_SDK_AUDIO_CODEC_G711U,
+				//	pChannel->mediaInfo.u32AudioSamplerate,			
+				//	pChannel->mediaInfo.u32AudioChannel > 2 ? 2 : pChannel->mediaInfo.u32AudioChannel,
+				//	pChannel->mediaInfo.u32AudioBitsPerSample);
+				pChannel->videoCodec = _frameInfo->codec;
+			}
+			pChannel->videoFrameNum++;
+
+			if (pChannel->sendStatus == 1)
+			{
+				if (pChannel->videoCodec == EASY_SDK_VIDEO_CODEC_H264)
+				{
+					char* buf = (char*)pBuf;
+					if (buf[0] == 0x00 && buf[1] == 0x00 && buf[2] == 0x00 && buf[3] == 0x01)
+					{
+						int v = buf[4] & 0x1f;
+						if (v == 7 || v == 8 || v == 5)
+						{
+							_frameInfo->type = 1;
+						}
+						else
+						{
+							_frameInfo->type = 2;
+						}
+					}
+					else if (buf[0] == 0x00 && buf[1] == 0x00 && buf[2] == 0x01)
+					{
+						int v = buf[3] & 0x1f;
+						if (v == 7 || v == 8 || v == 5)
+						{
+							_frameInfo->type = 1;
+						}
+						else
+						{
+							_frameInfo->type = 2;
+						}
+					}
+				}
+				if (_frameInfo->type == 0x01)
+				{
+					char* buf = (char*)pBuf;
+					pThis->OutputLog("推送关键帧: %d  Bytes: %02X %02X %02X %02X %02X %02X %02X %02X\n", _frameInfo->length,
+						(unsigned char)buf[0], (unsigned char)buf[1], (unsigned char)buf[2], (unsigned char)buf[3],
+						(unsigned char)buf[4], (unsigned char)buf[5], (unsigned char)buf[6], (unsigned char)buf[7]);
+
+
+					/*pChannel->longitude += 0.1;
+					pChannel->latitude += 0.001;
+					libGB28181Device_SetLotLat(pChannel->id, pChannel->longitude, pChannel->latitude);*/
+				}
+
+				libGB28181Device_AddVideoData(pChannel->id, (char*)pBuf, _frameInfo->length, _frameInfo->type);
+			}
+			if (pThis->sourceType == 1)
+			{
+				pThis->ProcessLocalVideoToQueue(pBuf, _frameInfo, 0);		// 将视频帧送入队列
+			}
+		}
+	}
+	else if (_frameType == EASY_SDK_AUDIO_FRAME_FLAG)
+	{
+		pChannel->mediaInfo.u32AudioCodec = _frameInfo->codec;
+		pChannel->mediaInfo.u32AudioSamplerate = _frameInfo->sample_rate;
+		pChannel->mediaInfo.u32AudioChannel = _frameInfo->channels;
+		pChannel->mediaInfo.u32AudioBitsPerSample = _frameInfo->bits_per_sample;
+
+		if (pChannel->sendStatus == 1)
+		{
+			libGB28181Device_AddAudioData(pChannel->id, _frameInfo->codec, (char*)pBuf, _frameInfo->length, _frameInfo->length);
+		}
+
+		//if (pChannel->sendStatus == 1)
+		//{
+		//	if (NULL == pChannel->atcHandle)
+		//	{
+		//	    ATC_Init(&pChannel->atcHandle, pChannel->audioOutputFormat,//TRANSCODE_AUDIO_TYPE_AAC,
+		//	        //pChannel->srcAudioCodec, frameinfo->sample_rate, 1, frameinfo->bitsPerSample);
+		//	        pChannel->srcAudioCodec, _frameInfo->sample_rate, _frameInfo->channels, _frameInfo->bits_per_sample);
+		//	}
+		//	if (pChannel->atcHandle)
+		//	{
+		//	    unsigned char* dstBuf = NULL;
+		//	    int dstBufSize = 0;
+		//	    if (0 == ATC_Transcode(pChannel->atcHandle, &dstBuf, &dstBufSize, (unsigned char*)pBuf, _frameInfo->length))
+		//	    {
+		//	        //printf("Audio frame length: %d   -->    %d\n", frameinfo->length, dstBufSize);
+
+		//	        //if (NULL != pChannel->pDSPlayer)
+		//	        //{
+		//	        //    pChannel->pDSPlayer->Write((char*)dstBuf, dstBufSize);
+		//	        //}
+
+		//	        if (pChannel->sendStatus == 1)
+		//	        {
+		//	            libGB28181Device_AddAudioData(pChannel->id, pChannel->audioOutputFormat, (char*)dstBuf, dstBufSize, dstBufSize);// dstBufSize);
+		//	            //libGB28181Device_AddAudioData(7, (char*)dstBuf, dstBufSize, dstBufSize);// dstBufSize);
+		//	        }
+
+		//	        //if (NULL == pChannel->fDat)
+		//	        //{
+		//	        //    //pGB28181Device->fDat = fopen("1.aac", "wb");
+		//	        //    pChannel->fDat = fopen("1.711u", "wb");
+		//	        //}
+		//	        //if (NULL != pChannel->fDat)
+		//	        //{
+		//	        //    fwrite(pBuf, 1, _frameInfo->length, pChannel->fDat);
+		//	        //}
+		//	    }
+		//	}
+
+		//	//libGB28181Device_AddAudioData(pChannel->id, _frameInfo->codec, (char*)pBuf, _frameInfo->length, _frameInfo->length);
+		//}
+	}
+	else if (_frameType == EASY_SDK_EVENT_FRAME_FLAG)
+	{
+		if (_frameInfo->codec == EASY_STREAM_CLIENT_STATE_DISCONNECTED)
+		{
+			pThis->OutputLog("当前视频源已断开!\n");
+		}
+		else if (_frameInfo->codec == EASY_STREAM_CLIENT_STATE_CONNECTED)
+		{
+			pThis->OutputLog("当前视频源连接成功!\n");
+		}
+		/*else if (_frameInfo->codec == EASY_STREAM_CLIENT_STATE_EXIT)
+		{
+			pThis->OutputLog("当前视频源已正常断开连接!\n");
+		}*/
+		else if (_frameInfo->codec == EASY_STREAM_CLIENT_STATE_CONNECT_FAILED)
+		{
+			pThis->OutputLog("当前视频源连接失败!\n");
+		}
+		else if (_frameInfo->codec == EASY_STREAM_CLIENT_STATE_CONNECTING)
+		{
+			pThis->OutputLog("当前视频源连接中...\n");
+		}
+		else if (_frameInfo->codec == EASY_STREAM_CLIENT_STATE_CONNECTED)
+		{
+			pThis->OutputLog("当前视频源连接成功.\n");
+		}
+		else if (_frameInfo->codec == EASY_STREAM_CLIENT_STATE_CONNECT_ABORT)
+		{
+			pThis->OutputLog("当前视频源连接异常中断.\n");
+		}
+	}
+	else if (_frameType == EASY_SDK_MEDIA_INFO_FLAG)
+	{
+		EASY_MEDIA_INFO_T* pMediaInfo = (EASY_MEDIA_INFO_T*)pBuf;
+
+		//memcpy(&pChannel->mediaInfo, pMediaInfo, sizeof(EASY_MEDIA_INFO_T));// pChannel = pMediaInfo->u32AudioCodec;
+
+	}
+
+	return 0;
+}
+
+int CALLBACK __AudioDataCallBack(void* userptr, char* pbuf, const int bufsize)
+{
+	GB28181_CHANNEL_T* pChannel = (GB28181_CHANNEL_T*)userptr;
+	printf("%s line[%d] packet size:%d----sendStatus:%d\n", __FUNCTION__, __LINE__, 
+		bufsize, pChannel->sendStatus);
+	if (pChannel->sendStatus == 1) {
+		//CEasyGBDDemoDlg* pThis = (CEasyGBDDemoDlg*)pChannel->userptr;
+		if (pChannel->mediaInfo.u32AudioCodec <= 0)
+		{
+			pChannel->mediaInfo.u32AudioCodec = EASY_SDK_AUDIO_CODEC_G711U;
+			libGB28181Device_SetAudioFormat(pChannel->id, EASY_SDK_AUDIO_CODEC_G711U, 8000, 1, 16);
+		}
+		libGB28181Device_AddAudioData(pChannel->id, EASY_SDK_AUDIO_CODEC_G711U, (char*)pbuf, bufsize, bufsize);
+	}
+	return 0;
+}
+
+#ifdef _WIN32
+DWORD WINAPI __VideoRenderThread(void* lpParam)
+#else
+void* __LocalVideoRenderThread(void* lpParam)
+#endif
+{
+	OSTHREAD_OBJ_T* pThread = (OSTHREAD_OBJ_T*)lpParam;
+	CEasyGBDDemoDlg* pThis = (CEasyGBDDemoDlg*)pThread->userPtr;
+	pThread->flag = THREAD_STATUS_RUNNING;
+
+	while (1)
+	{
+		if (pThread->flag == THREAD_STATUS_EXIT)		break;
+
+		int ret = pThis->ProcessLocalVideoFromQueue(0);
+		if (ret < 0)
+		{
+			Sleep(1);
+		}
+	}
+
+	pThis->ProcessLocalVideoFromQueue(1);
+
+	pThread->flag = THREAD_STATUS_INIT;
+
+
+	return 0;
+}
+
+bool CEasyGBDDemoDlg::OpenSource()
+{
+	localVideoRender.renderHwnd = pGBDVideoDlg->GetSafeHwnd();
+
+	int nIndex = pComboxSourceType->GetCurSel();
+	sourceType = nIndex;
+	char szURL[1024] = { 0 };
+	mGB28181Device.pChannel.userptr = this;
+	if (nIndex == 0)
+	{
+		if (pComboxCameraList->GetCount() < 1 || pComboxAudioList->GetCount() < 1)
+		{
+			MessageBox(TEXT("没有找到视频或音频采集设备"));
+			return false;
+		}
+
+		if (pComboxCameraList->GetCurSel() < 0 || pComboxAudioList->GetCurSel() < 0)
+		{
+			MessageBox(TEXT("请选择视频和音频采集设备"));
+			return false;
+		}
+
+		// video=
+		wchar_t wszURL[1024] = { 0 };
+		pComboxCameraList->GetWindowText(wszURL, sizeof(wszURL) / sizeof(wchar_t));
+		WCharToMByteEx(wszURL, szURL, sizeof(szURL) / sizeof(szURL[0]));
+
+		if (0 != strcmp(szURL, "\0"))
+		{
+			memset(szURL, 0x00, sizeof(szURL));
+			strcpy(szURL, "video=");
+			WCharToMByteEx(wszURL, szURL + 6, (sizeof(szURL) - 6) / sizeof(szURL[0]));
+		}
+
+
+		if (0 != strcmp(szURL, "\0"))
+		{
+			int audioDeviceIndex = pComboxAudioList->GetCurSel();
+			int openDeviceRet = libAudioCapturer_OpenAudioCaptureDevice(audioDeviceIndex);
+			if (openDeviceRet == 0)
+			{
+				int samplerate = 8000;			// 采样率
+				int bitPerSamples = 16;			// 采样精度
+				int channels = 1;				// 通道数
+				int pcm_buf_size_per_sec = samplerate * bitPerSamples * channels / 8;			// 每秒数据量		比如8000*16*1/8=16000
+				int pcm_buf_size_per_ms = pcm_buf_size_per_sec / 1000;							// 每毫秒数据量		16000/1000=16
+				int interval_ms = 20;															// 间隔20毫秒
+				int bytes_per_20ms = pcm_buf_size_per_ms * interval_ms;							// 每20毫秒数据量
+
+				unsigned int audioCodec = AUDIO_CODEC_ID_MULAW;
+				
+				libAudioCapturer_StartAudioCapture(audioCodec, bytes_per_20ms,
+					samplerate, bitPerSamples, channels, __AudioDataCallBack, &mGB28181Device.pChannel);
+
+				libGB28181Device_SetAudioFormat(mGB28181Device.pChannel.id, EASY_SDK_AUDIO_CODEC_G711U, 8000, 1, 16);
+
+			}
+		}
+	}
+	else if (nIndex > 2)
+	{
+		MessageBox(TEXT("选择类型错误"));
+		return false;
+	}
+	else {
+		GetEditText(szURL, sizeof(szURL) / sizeof(szURL[0]), pEdtSourceURL);
+
+		if (0 == strcmp(szURL, "\0") || (int)strlen(szURL) < 16)
+		{
+			MessageBox(TEXT("请输入有效的流地址"));
+			pEdtSourceURL->SetFocus();
+			return false;
+		}
+	}
+
+	// rtsp
+	if (streamClientHandle == NULL)
+	{
+		EasyStreamClient_Init(&streamClientHandle, 0);
+		if (NULL != streamClientHandle)
+		{
+			EasyStreamClient_SetAudioEnable(streamClientHandle, 1);
+			if (nIndex == 1)
+			{
+				EasyStreamClient_SetAudioOutFormat(streamClientHandle, EASY_SDK_AUDIO_CODEC_G711U, 8000, 1);
+			}
+
+			EasyStreamClient_SetCallback(streamClientHandle, __EasyStreamClientCallBack);
+			
+			EasyStreamClient_OpenStream(streamClientHandle, szURL, EASY_RTP_OVER_TCP, &mGB28181Device.pChannel, 1000, 20, 1);
+		}
+	}
+	// render
+	if (NULL == pRenderThread)
+	{
+		CreateOSThread(&pRenderThread, __VideoRenderThread, this, 0);
+	}
+	pComboxSourceType->EnableWindow(FALSE);
+	return true;
+}
+
+bool CEasyGBDDemoDlg::CloseSource()
+{
+	if (NULL != streamClientHandle)
+	{
+		EasyStreamClient_Deinit(streamClientHandle);
+		streamClientHandle = NULL;
+
+#if 1
+		libAudioCapturer_StopAudioCapture();
+		libAudioCapturer_CloseAudioCaptureDevice();
+#endif
+
+		if (pRenderThread)
+		{
+			DeleteOSThread(&pRenderThread);
+			pRenderThread = NULL;
+		}
+		if (localVideoRender.transcodeHandle)
+		{
+			TransCode_Release(&localVideoRender.transcodeHandle);
+			localVideoRender.transcodeHandle = NULL;
+		}
+		if (localVideoRender.d3dHandle)
+		{
+			D3D_Release(&localVideoRender.d3dHandle);
+			localVideoRender.d3dHandle = NULL;
+		}
+		sourceType = -1;
+	}
+	return true;
+}
+
+void CEasyGBDDemoDlg::OnSysCommand(UINT nID, LPARAM lParam)
+{
+	if ((nID & 0xFFF0) == IDM_ABOUTBOX)
+	{
+		CAboutDlg dlgAbout;
+		dlgAbout.DoModal();
+	}
+	else
+	{
+		CDialogEx::OnSysCommand(nID, lParam);
+	}
+}
+
+// 如果向对话框添加最小化按钮，则需要下面的代码
+//  来绘制该图标。  对于使用文档/视图模型的 MFC 应用程序，
+//  这将由框架自动完成。
+
+void CEasyGBDDemoDlg::OnPaint()
+{
+	if (IsIconic())
+	{
+		CPaintDC dc(this); // 用于绘制的设备上下文
+
+		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
+
+		// 使图标在工作区矩形中居中
+		int cxIcon = GetSystemMetrics(SM_CXICON);
+		int cyIcon = GetSystemMetrics(SM_CYICON);
+		CRect rect;
+		GetClientRect(&rect);
+		int x = (rect.Width() - cxIcon + 1) / 2;
+		int y = (rect.Height() - cyIcon + 1) / 2;
+
+		// 绘制图标
+		dc.DrawIcon(x, y, m_hIcon);
+	}
+	else
+	{
+		CDialogEx::OnPaint();
+	}
+}
+
+//当用户拖动最小化窗口时系统调用此函数取得光标
+//显示。
+HCURSOR CEasyGBDDemoDlg::OnQueryDragIcon()
+{
+	return static_cast<HCURSOR>(m_hIcon);
+}
+
+
+
+bool WCharToMByte(LPCWSTR lpcwszStr, LPSTR lpszStr, DWORD dwSize)
+{
+	DWORD dwMinSize;
+	dwMinSize = WideCharToMultiByte(CP_UTF8, NULL, lpcwszStr, -1, NULL, 0, NULL, FALSE);
+	if (dwSize < dwMinSize)
+	{
+		return false;
+	}
+	WideCharToMultiByte(CP_UTF8, NULL, lpcwszStr, -1, lpszStr, dwSize, NULL, FALSE);
+	return true;
+}
+
+void CEasyGBDDemoDlg::OnBnClickedButtonStart()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if (!isPreview)
+	{
+		MessageBox(TEXT("请先开启预览！"));
+		return;
+	}
+
+	wchar_t wszServerSipId[32] = { 0 };
+	char szServerSipId[32] = { 0 };
+	pEdtServerSipID->GetWindowTextW(wszServerSipId, sizeof(wszServerSipId));
+	WCharToMByte(wszServerSipId, szServerSipId, sizeof(szServerSipId) / sizeof(szServerSipId[0]));
+
+	wchar_t wszServerIP[32] = { 0 };
+	char szServerIP[32] = { 0 };
+	pEdtServerIP->GetWindowTextW(wszServerIP, sizeof(wszServerIP));
+	WCharToMByte(wszServerIP, szServerIP, sizeof(szServerIP) / sizeof(szServerIP[0]));
+
+	wchar_t wszServerPort[16] = { 0 };
+	char szServerPort[16] = { 0 };
+	pEdtServerPort->GetWindowTextW(wszServerPort, sizeof(wszServerPort));
+	WCharToMByte(wszServerPort, szServerPort, sizeof(szServerPort) / sizeof(szServerPort[0]));
+
+	wchar_t wszRegExpire[16] = { 0 };
+	char szRegExpire[16] = { 0 };
+	pEdtRegExpire->GetWindowTextW(wszRegExpire, sizeof(wszRegExpire));
+	WCharToMByte(wszRegExpire, szRegExpire, sizeof(szRegExpire) / sizeof(szRegExpire[0]));
+
+	wchar_t wszHeartbeatCount[16] = { 0 };
+	char szHeartbeatCount[16] = { 0 };
+	pEdtHeartbeatCount->GetWindowTextW(wszHeartbeatCount, sizeof(wszHeartbeatCount));
+	WCharToMByte(wszHeartbeatCount, szHeartbeatCount, sizeof(szHeartbeatCount) / sizeof(szHeartbeatCount[0]));
+
+	wchar_t wszHeartbeatInterval[16] = { 0 };
+	char szHeartbeatInterval[16] = { 0 };
+	pEdtHeartbeatInterval->GetWindowTextW(wszHeartbeatInterval, sizeof(wszHeartbeatInterval));
+	WCharToMByte(wszHeartbeatInterval, szHeartbeatInterval, sizeof(szHeartbeatInterval) / sizeof(szHeartbeatInterval[0]));
+
+	int protocol = pComboxProtocol->GetCurSel();
+
+	wchar_t wszPassword[32] = { 0 };
+	char szPassword[32] = { 0 };
+	pEdtPassword->GetWindowTextW(wszPassword, sizeof(wszPassword));
+	WCharToMByte(wszPassword, szPassword, sizeof(szPassword) / sizeof(szPassword[0]));
+
+	wchar_t wszLocalSipID[32] = { 0 };
+	char szLocalSipID[32] = { 0 };
+	pEdtLocalSipID->GetWindowTextW(wszLocalSipID, sizeof(wszLocalSipID));
+	WCharToMByte(wszLocalSipID, szLocalSipID, sizeof(szLocalSipID) / sizeof(szLocalSipID[0]));
+
+	wchar_t wszLocalPort[16] = { 0 };
+	char szLocalPort[16] = { 0 };
+	pEdtLocalPort->GetWindowTextW(wszLocalPort, sizeof(wszLocalPort));
+	WCharToMByte(wszLocalPort, szLocalPort, sizeof(szLocalPort) / sizeof(szLocalPort[0]));
+
+	wchar_t wszDeviceName[128] = { 0 };
+	char szDeviceName[128] = { 0 };
+	pEdtDeviceName->GetWindowTextW(wszDeviceName, sizeof(wszDeviceName));
+	WCharToMByte(wszDeviceName, szDeviceName, sizeof(szDeviceName) / sizeof(szDeviceName[0]));
+
+	wchar_t wszSourceURL[1024] = { 0 };
+	char szSourceURL[1024] = { 0 };
+	pEdtSourceURL->GetWindowTextW(wszSourceURL, sizeof(wszSourceURL));
+	WCharToMByte(wszSourceURL, szSourceURL, sizeof(szSourceURL) / sizeof(szSourceURL[0]));
+
+	if (!mGB28181Device.isStart)
+	{
+		// 保持配置
+		XmlConfig	cfg;
+		XML_CONFIG_T	config;
+		memset(&config, 0x00, sizeof(config));
+		strcpy(config.serverSipID, szServerSipId);
+		wchar_t wszServerSipSerial[16] = { 0 };
+		pEdtServerSipDomain->GetWindowTextW(wszServerSipSerial, sizeof(wszServerSipSerial));
+		WCharToMByte(wszServerSipSerial, config.serverDomain, sizeof(config.serverDomain) / sizeof(config.serverDomain[0]));
+		strcpy(config.serverIP, szServerIP);
+		config.serverSipPort = atoi(szServerPort);
+		config.registerExpire = atoi(szRegExpire);
+		config.heartbeatCount = atoi(szHeartbeatCount);
+		config.heartbeatInterval = atoi(szHeartbeatInterval);
+		strcpy(config.protocol, protocol == 0 ? "UDP": "TCP");
+		strcpy(config.password, szPassword);
+		strcpy(config.localSipID, szLocalSipID);
+		config.localPort = atoi(szLocalPort);
+		strcpy(config.deviceName, szDeviceName);
+		strcpy(config.sourcePath, szSourceURL);
+
+		wchar_t wszChannelID[32] = { 0 };
+		pEdtChannel->GetWindowTextW(wszChannelID, sizeof(wszChannelID));
+		WCharToMByte(wszChannelID, config.channels.cid, sizeof(config.channels.cid) / sizeof(config.channels.cid[0]));
+
+		cfg.SaveConfig(SERVER_CONFIG_FILENAME, &config);
+
+		int ret = Startup(szServerSipId, config.serverDomain, szServerIP, atoi(szServerPort), atoi(szRegExpire), atoi(szHeartbeatCount), atoi(szHeartbeatInterval),
+			protocol, szPassword, szLocalSipID, atoi(szLocalPort), szDeviceName, szSourceURL, &config.channels);
+		if (ret < 0)
+		{
+			return;
+		}
+		pBtnStartup->SetWindowTextW(TEXT("停止"));
+	}
+	else
+	{
+		Shutdown();
+		pBtnStartup->SetWindowTextW(TEXT("开始"));
+	}
+
+	/*pBtnStartup->EnableWindow(FALSE);
+	pBtnShutdown->EnableWindow(TRUE);*/
+}
+
+
+void CEasyGBDDemoDlg::OnBnClickedButtonShutdown()
+{
+	Shutdown();
+
+	/*pBtnStartup->EnableWindow(TRUE);
+	pBtnShutdown->EnableWindow(FALSE);*/
+}
+
+
+int CEasyGBDDemoDlg::OutputLog(char* szFormat, ...)
+{
+	char	pbuf[1024] = { 0 };
+
+	va_list args;
+	va_start(args, szFormat);
+	vsnprintf(pbuf, sizeof(pbuf) - 1, szFormat, args);
+	va_end(args);
+
+
+
+	LockLogMutex();
+	mLogVector.push_back(pbuf);
+	UnlockLogMutex();
+
+	PostMessage(WM_UPDATE_LOG);
+
+	return 0;
+}
+
+LRESULT CEasyGBDDemoDlg::OnUpdateLog(WPARAM, LPARAM)
+{
+
+	OutputLog2UI();
+	return 0;
+}
+
+void CEasyGBDDemoDlg::OutputLog2UI()
+{
+	LockLogMutex();
+	LOG_VECTOR::iterator it = mLogVector.begin();
+	while (it != mLogVector.end())
+	{
+		wchar_t wszBuf[1024] = { 0 };
+		MByteToWChar(it->data(), wszBuf, sizeof(wszBuf) / sizeof(wszBuf[0]));
+
+		pRichEditLog->SetSel(-1, -1);
+		pRichEditLog->ReplaceSel(wszBuf);
+
+		mLogVector.erase(it);
+		it = mLogVector.begin();
+		if (it == mLogVector.end())		break;
+	}
+	UnlockLogMutex();
+}
+
+
+
+int CALLBACK __GB28181DeviceCALLBACK(void* userPtr, void* recordPtr, int channelId, int eventType, char* eventParams, int paramLength)
+{
+	if (channelId < 0)		return 0;
+
+	GB28181_DEVICE_T* pGB28181Device = (GB28181_DEVICE_T*)userPtr;
+	GB28181_CHANNEL_T* pChannel = &pGB28181Device->pChannel;
+
+	if (NULL == pChannel)		return 0;
+
+	CEasyGBDDemoDlg* pThis = (CEasyGBDDemoDlg*)pChannel->userptr;
+
+	if (GB28181_DEVICE_EVENT_CONNECTING == eventType)
+	{
+		pThis->OutputLog("GB/T28181服务连接中...  %s\n", eventParams);
+
+	}
+	else if (GB28181_DEVICE_EVENT_REGISTER_ING == eventType)
+	{
+		pThis->OutputLog("GB/T28181 注册中....\n");
+	}
+	else if (GB28181_DEVICE_EVENT_REGISTER_TIMEOUT == eventType)
+	{
+		pThis->OutputLog("GB/T28181 注册超时....\n");
+	}
+	if (GB28181_DEVICE_EVENT_REGISTER_OK == eventType)
+	{
+		pThis->OutputLog("GB/T28181 注册成功.\n");
+	}
+	else if (GB28181_DEVICE_EVENT_REGISTER_AUTH_FAIL == eventType)
+	{
+		pThis->OutputLog("GB/T28181 鉴权失败.\n");
+	}
+
+	else if (GB28181_DEVICE_EVENT_START_AUDIO_VIDEO == eventType)
+	{
+		pThis->OutputLog("GB/T28181 请求视频.  ID: %s\n", eventParams);
+		pChannel->sendStatus = 1;
+	}
+	else if (GB28181_DEVICE_EVENT_STOP_AUDIO_VIDEO == eventType)
+	{
+		pThis->OutputLog("GB/T28181 停止视频.  ID: %s\n", eventParams);
+		pChannel->sendStatus = 0;
+	}
+	else if (GB28181_DEVICE_EVENT_TALK_AUDIO_DATA == eventType)
+	{
+		pThis->OutputLog("GB/T28181 音频对讲数据...  size:%d\n", paramLength);
+
+		static FILE* f = fopen("1_talk.pcm", "wb");
+		if (f)
+		{
+			fwrite(eventParams, 1, paramLength, f);
+		}
+
+	}
+	else if (GB28181_DEVICE_EVENT_SUBSCRIBE_ALARM == eventType)
+	{
+		pThis->OutputLog("GB/T28181 订阅报警:%d.\n", paramLength);
+	}
+	else if (GB28181_DEVICE_EVENT_SUBSCRIBE_CATALOG == eventType)
+	{
+		pThis->OutputLog("GB/T28181 订阅目录:%d.\n", paramLength);
+	}
+	else if (GB28181_DEVICE_EVENT_SUBSCRIBE_MOBILEPOSITION == eventType)
+	{
+		pThis->OutputLog("GB/T28181 订阅位置:%d.\n", paramLength);
+	}
+	//
+
+	return 0;
+}
+
+
+
+int		CEasyGBDDemoDlg::Startup(const char* serverSIPId, const char* serverSIPDomain, const char* serverIP, const int serverPort,
+								const int reg_expires, const int heartbeatCount, const int heartbeatInterval,
+								const int protocol, const char* password,
+								const char* localSIPId, const int localPort, 
+								const char* deviceName, const char* sourceURL, XML_CHANNEL_T *channels)
+{
+	int ret = 0;
+
+		OutputLog("启动中...\n");
+		if (!mGB28181Device.isStart)
+		{
+			mGB28181Device.isStart = true;
+				mGB28181Device.pChannel.id = 0;
+				//mGB28181Device.pChannel.userptr = this;
+				//strcpy(mGB28181Device.pChannel[i].sourceURL, sourceURL);// "rtsp://admin:admin12345@192.168.6.41");
+
+
+				mGB28181Device.pChannel.longitude = 121.29;
+				mGB28181Device.pChannel.latitude = 31.14;
+
+				if (sourceType < 0)
+				{
+					if (!OpenSource())
+					{
+						mGB28181Device.isStart = false;
+						sourceType = -1;
+						return -999;
+					}
+				}
+
+			GB28181_DEVICE_INFO_T   gb28181DeviceInfo;
+			memset(&gb28181DeviceInfo, 0x00, sizeof(GB28181_DEVICE_INFO_T));
+			strcpy(gb28181DeviceInfo.device_name, deviceName);
+
+			gb28181DeviceInfo.version = 0;
+			strcpy(gb28181DeviceInfo.server_id, serverSIPId);
+			//wchar_t wszServerSipSerial[16] = { 0 };
+			//char szServerSipSerial[16] = { 0 };
+			//pEdtServerSipDomain->GetWindowTextW(wszServerSipSerial, sizeof(wszServerSipSerial));
+			//WCharToMByte(wszServerSipSerial, szServerSipSerial, sizeof(szServerSipSerial) / sizeof(szServerSipSerial[0]));
+			//memcpy(gb28181DeviceInfo.server_domain, szServerSipSerial, sizeof(szServerSipSerial) / sizeof(szServerSipSerial[0]));
+			//memcpy(gb28181DeviceInfo.server_domain, gb28181DeviceInfo.server_id, 10);
+			strcpy(gb28181DeviceInfo.server_domain, serverSIPDomain);
+			strcpy(gb28181DeviceInfo.server_ip, serverIP);
+			gb28181DeviceInfo.server_port = serverPort;
+			gb28181DeviceInfo.reg_expires = reg_expires;
+			gb28181DeviceInfo.heartbeat_count = heartbeatCount;
+			gb28181DeviceInfo.heartbeat_interval = heartbeatInterval;
+			gb28181DeviceInfo.protocol = protocol; //0 - udp; 1 - tcp
+			gb28181DeviceInfo.media_protocol = protocol;
+			strcpy(gb28181DeviceInfo.password, password);
+			gb28181DeviceInfo.log_enable = 1;         // log enable flag
+			gb28181DeviceInfo.log_level = 0;          // log level(0:TRACE,1:DEBUG,2:INFO,3:WARNING,4:ERROR,5:FATAL)
+
+			strcpy(gb28181DeviceInfo.device_id, localSIPId);
+			gb28181DeviceInfo.localSipPort = localPort;
+
+			//gb28181DeviceInfo.channel_nums = MAX_GB28181_CHANNEL_NUM;
+			//for (int i = 0; i < gb28181DeviceInfo.channel_nums; i++)
+			//{
+			//	sprintf(gb28181DeviceInfo.channel[i].id, "%s1310%06d", gb28181DeviceInfo.server_domain, i + 1);
+			//	//sprintf(gb28181DeviceInfo.channel[i].name, "ch %02d", i + 1);
+			//	strcpy(gb28181DeviceInfo.channel[i].name, "EasyIPC");
+			//	strcpy(gb28181DeviceInfo.channel[i].model, "EasyGBD");
+			//	sprintf(gb28181DeviceInfo.channel[i].owner, "Owner %02d", i + 1);
+			//	strcpy(gb28181DeviceInfo.channel[i].manufacturer, "TSINGSEE");
+			//	gb28181DeviceInfo.channel[i].longitude = (double)i + 100;
+			//	gb28181DeviceInfo.channel[i].latitude = (double)i + 10;
+			//	break;
+			//}
+			gb28181DeviceInfo.channel_nums = 1;
+			int i = 0;
+			strcpy(gb28181DeviceInfo.channel[i].id, channels->cid);
+			strcpy(gb28181DeviceInfo.channel[i].name, "EasyIPC");
+			strcpy(gb28181DeviceInfo.channel[i].model, "EasyGBD");
+			sprintf(gb28181DeviceInfo.channel[i].owner, "Owner %02d", i + 1);
+			strcpy(gb28181DeviceInfo.channel[i].manufacturer, "TSINGSEE");
+
+			libGB28181Device_Create(&gb28181DeviceInfo/*为NULL则表示从当前目录下读取config.xml*/, __GB28181DeviceCALLBACK, (void*)&mGB28181Device);
+
+			//for (int i = 0; i < MAX_GB28181_CHANNEL_NUM; i++)
+			//{
+			//	if (0 == strcmp(mGB28181Device.pChannel[i].sourceURL, "\0"))    continue;
+
+
+			//	EasyStreamClient_Init(&mGB28181Device.pChannel[i].streamClientHandle, 0);
+			//	EasyStreamClient_SetCallback(mGB28181Device.pChannel[i].streamClientHandle, __EasyStreamClientCallBack);
+			//	EasyStreamClient_OpenStream(mGB28181Device.pChannel[i].streamClientHandle,
+			//		mGB28181Device.pChannel[i].sourceURL, EASY_RTP_OVER_TCP, &mGB28181Device.pChannel[i], 1000, 20, 1);
+			//	EasyStreamClient_SetAudioEnable(mGB28181Device.pChannel[i].streamClientHandle, 1);
+			//	//EasyStreamClient_SetAudioOutFormat(mGB28181Device.pChannel[i].streamClientHandle, EASY_SDK_AUDIO_CODEC_AAC, 8000, 1);
+			//	//mGB28181Device.pChannel[i].audioOutputFormat = TRANSCODE_AUDIO_TYPE_G711U;// TRANSCODE_AUDIO_TYPE_G711U;
+
+			//	//libGB28181Device_SetVideoFormat(i, EASY_SDK_VIDEO_CODEC_H265, 0, 0, 0);
+			//	//libGB28181Device_SetAudioFormat(i, EASY_SDK_AUDIO_CODEC_AAC, 8000, 1, 16);
+			//}
+
+			OutputLog("已启动..\n");
+		}
+		else
+		{
+			OutputLog("启动中...\n");
+			ret = -1000;
+			return ret;
+		}
+
+
+	return ret;
+}
+void	CEasyGBDDemoDlg::Shutdown()
+{
+	//if (mGB28181DeviceList.pGB28181Device)
+	//{
+	//	for (int i = 0; i < mGB28181DeviceList.nDeviceNum; i++)
+	//	{
+	//		for (int ch = 0; ch < MAX_GB28181_CHANNEL_NUM; ch++)
+	//		{
+	//			if (0 == strcmp(mGB28181DeviceList.pGB28181Device[i].pChannel[ch].sourceURL, "\0"))    continue;
+
+	//			mGB28181DeviceList.pGB28181Device[i].pChannel[ch].sendStatus = 0;
+
+	//			EasyStreamClient_Deinit(mGB28181DeviceList.pGB28181Device[i].pChannel[ch].streamClientHandle);
+	//			mGB28181DeviceList.pGB28181Device[i].pChannel[ch].streamClientHandle = NULL;
+
+	//			//ATC_Deinit(&mGB28181Device.pChannel[i].atcHandle);
+
+	//			if (NULL != mGB28181DeviceList.pGB28181Device[i].pChannel[ch].fDat)
+	//			{
+	//				fclose(mGB28181DeviceList.pGB28181Device[i].pChannel[ch].fDat);
+	//				mGB28181DeviceList.pGB28181Device[i].pChannel[ch].fDat = NULL;
+	//			}
+	//		}
+
+	//		delete[]mGB28181DeviceList.pGB28181Device[i].pChannel;
+	//		mGB28181DeviceList.pGB28181Device[i].pChannel = NULL;
+	//	}
+
+	//	delete[]mGB28181DeviceList.pGB28181Device;
+	//	mGB28181DeviceList.pGB28181Device = NULL;
+	//}
+
+	if (!mGB28181Device.isStart)
+	{
+		return;
+	}
+	OutputLog("停止中...\n");
+		mGB28181Device.pChannel.sendStatus = 0;
+
+		if (NULL != mGB28181Device.pChannel.streamClientHandle)
+		{
+			EasyStreamClient_Deinit(mGB28181Device.pChannel.streamClientHandle);
+			mGB28181Device.pChannel.streamClientHandle = NULL;
+		}
+
+		//ATC_Deinit(&mGB28181Device.pChannel[i].atcHandle);
+
+		if (NULL != mGB28181Device.pChannel.fDat)
+		{
+			fclose(mGB28181Device.pChannel.fDat);
+			mGB28181Device.pChannel.fDat = NULL;
+		}
+
+	libGB28181Device_Release();
+
+	if (!isPreview)
+	{
+		CloseSource();
+		pComboxSourceType->EnableWindow(TRUE);
+	}
+
+	mGB28181Device.isStart = false;
+	OutputLog("已停止.\n");
+}
+
+void CEasyGBDDemoDlg::OnDestroy()
+{
+	CDialogEx::OnDestroy();
+
+	CloseSource();
+	libAudioCapturer_Deinit();
+	Shutdown();
+	DeinitMutex(&mLogMutex);
+	DeinitMutex(&mutexLocalFrame);
+
+	if (pGBDVideoDlg)
+	{
+		pGBDVideoDlg->DestroyWindow();
+		delete pGBDVideoDlg;
+		pGBDVideoDlg = NULL;
+	}
+}
+
+
+
+void CEasyGBDDemoDlg::OnBnClickedButtonBrowse()
+{
+	if (sourceType < 0)
+	{
+		if (!OpenSource())
+		{
+			sourceType = -1;
+			return;
+		}
+	}
+	else
+	{
+		if (!mGB28181Device.isStart)
+		{
+			CloseSource();
+			pComboxSourceType->EnableWindow(TRUE);
+		}
+		else
+		{
+			MessageBox(TEXT("在启动中，不可关闭"));
+			return;
+		}
+	}
+	isPreview = !isPreview;
+	GetDlgItem(IDC_BUTTON_BROWSE)->SetWindowTextW(isPreview ? TEXT("关闭预览") : TEXT("开启预览"));
+	if (!isPreview)
+	{
+		pGBDVideoDlg->Invalidate();
+	}
+
+	//wchar_t szDefaultOpenPath[MAX_PATH] = { 0 };
+	//MByteToWChar(globalRecordingPath, szDefaultOpenPath, sizeof(szDefaultOpenPath) / sizeof(szDefaultOpenPath[0]));
+
+	//CFileDialog file(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, L"媒体文件(*.*)|*.*||");
+	////file.m_ofn.lpstrInitialDir = szDefaultOpenPath;
+	//if (file.DoModal() != IDOK)		return;
+
+	////获取文件名称
+	//file.GetFileName();
+	////获取文件路径,此处只想说明下file.GetPathName()的返回值类型。
+	//CString filePath = file.GetPathName();
+
+	//pEdtSourceURL->SetWindowTextW(filePath);
+}
+
+
+
+
+
+void CEasyGBDDemoDlg::OnCbnSelchangeComboSourceType()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	bool isLocalVideo = pComboxSourceType->GetCurSel() == 0 ? true : false;
+	if (pComboxCameraList)	pComboxCameraList->ShowWindow(isLocalVideo ? SW_SHOW : SW_HIDE);
+	if (pComboxAudioList)	pComboxAudioList->ShowWindow(isLocalVideo ? SW_SHOW : SW_HIDE);
+
+	if (NULL != pEdtSourceURL)	pEdtSourceURL->ShowWindow(isLocalVideo ? SW_HIDE : SW_SHOW);
+}
+
+void CEasyGBDDemoDlg::ProcessLocalVideoToQueue(void* pBuf, EASY_FRAME_INFO* _frameInfo, int rawVideo)
+{
+	LockMutex(&mutexLocalFrame);
+
+	if (localFrameInfoVector.size() >= 30)
+	{
+		FRAME_INFO_VECTOR::iterator it = localFrameInfoVector.begin();
+		while (it != localFrameInfoVector.end())
+		{
+			if (NULL != it->pbuf)
+			{
+				delete[]it->pbuf;
+			}
+
+			localFrameInfoVector.erase(it);
+
+			if (localFrameInfoVector.size() < 30)	break;
+
+			it = localFrameInfoVector.begin();
+			//it++;
+		}
+	}
+
+	FRAME_INFO_T	localFrameInfo;
+	memset(&localFrameInfo, 0x00, sizeof(FRAME_INFO_T));
+	memcpy(&localFrameInfo.info, _frameInfo, sizeof(EASY_FRAME_INFO));
+
+	localFrameInfo.rawVideo = rawVideo;
+
+	localFrameInfo.pbuf = new char[_frameInfo->length];
+	if (NULL != localFrameInfo.pbuf)
+	{
+		memcpy(localFrameInfo.pbuf, pBuf, _frameInfo->length);
+		localFrameInfoVector.push_back(localFrameInfo);
+	}
+
+	UnlockMutex(&mutexLocalFrame);
+}
+
+int		CEasyGBDDemoDlg::ProcessLocalVideoFromQueue(int clear)
+{
+	int isRawVideo = 0;
+	char* pBuf = NULL;
+	EASY_FRAME_INFO localFrameInfo;
+	memset(&localFrameInfo, 0x00, sizeof(EASY_FRAME_INFO));
+
+	LockMutex(&mutexLocalFrame);
+
+	if (clear == 0)		// 逐帧处理
+	{
+		FRAME_INFO_VECTOR::iterator it = localFrameInfoVector.begin();
+		if (it != localFrameInfoVector.end())
+		{
+			pBuf = it->pbuf;
+			memcpy(&localFrameInfo, &it->info, sizeof(EASY_FRAME_INFO));
+			isRawVideo = it->rawVideo;
+
+			localFrameInfoVector.erase(it);
+		}
+	}
+	else
+	{
+		// 删除所有帧
+		FRAME_INFO_VECTOR::iterator it = localFrameInfoVector.begin();
+		while (it != localFrameInfoVector.end())
+		{
+			if (NULL != it->pbuf)
+			{
+				delete[]it->pbuf;
+			}
+			localFrameInfoVector.erase(it);
+			it = localFrameInfoVector.begin();
+		}
+
+		localFrameInfoVector.clear();
+	}
+
+	UnlockMutex(&mutexLocalFrame);
+
+	if (clear == 1)		return 0;
+
+	int ret = -1;
+	if (NULL != pBuf)
+	{
+		ret = 0;
+
+		if (isPreview)
+		{
+			/*if ((!findLocalKeyframe) ||
+				(findLocalKeyframe && localFrameInfo.type == 0x01))
+			{*/
+				RenderVideo(&localVideoRender, pBuf, &localFrameInfo, isRawVideo);
+				findLocalKeyframe = false;
+			//}
+		}
+		else
+		{
+			findLocalKeyframe = true;
+		}
+		delete[]pBuf;
+	}
+
+	return ret;
+}
+
+void	CEasyGBDDemoDlg::RenderVideo(VIDEO_RENDER_T* pRender, void* pBuf, EASY_FRAME_INFO* _frameInfo, int rawVideo)
+{
+	if (NULL == pRender->transcodeHandle)
+	{
+		if (rawVideo == 0x01)
+		{
+			static int dstPixelFormat = 1;	//YUY2
+			TransCode_CreateSws(&pRender->transcodeHandle, _frameInfo->width, _frameInfo->height, 0, _frameInfo->width, _frameInfo->height, dstPixelFormat);
+		}
+		else
+		{
+			// 编码帧, 需解码
+			TransCode_Create(&pRender->transcodeHandle);
+
+			int pixelFormat = 1;		//D3D_FORMAT_YUY2
+			int transcodeCodecId = 0;
+			//int transcodeCodecId = TRANSCODE_VIDEO_CODEC_ID_H264;	//TRANSCODE_VIDEO_CODEC_ID_MJPEG
+			//if (_frameInfo->codec == EASY_SDK_VIDEO_CODEC_H265)	transcodeCodecId = TRANSCODE_VIDEO_CODEC_ID_H265;
+
+			int HWDecoderId = -1;// 7;
+			TransCode_Init(pRender->transcodeHandle, 0, HWDecoderId, 0, 0, pixelFormat, transcodeCodecId, -1, 25, 25, 1024 * 1024);
+
+		}
+	}
+
+	if (NULL != pRender->transcodeHandle)
+	{
+		unsigned char* rgbData = NULL;
+		int rgbSize = 0;
+		if (rawVideo == 0x01)
+		{
+			TransCode_SwsScale(pRender->transcodeHandle, (unsigned char*)pBuf, &rgbData, &rgbSize);
+		}
+		else
+		{
+			TRANSCODE_DECODE_CALLBACK decodeCB = NULL;
+			TRANSCODE_ENCODE_CALLBACK encodeCB = NULL;
+			int width = 0, height = 0;
+			int keyFrame = 0;
+			int ret = TransCode_TransCodeVideo(pRender->transcodeHandle, (char*)pBuf, _frameInfo->length,
+				&width, &height, (char**)&rgbData, (int*)&rgbSize, &keyFrame,
+				decodeCB, NULL,
+				encodeCB, NULL, 0, true);
+
+			if (ret != 0)							return;
+			if (width < 1 || height < 1)			return;
+			if (rgbSize < width * height)			return;
+
+			if (_frameInfo->width < 1)	_frameInfo->width = width;
+			if (_frameInfo->height < 1)	_frameInfo->height = height;
+		}
+
+		if (NULL == pRender->d3dHandle)
+		{
+			char fontName[32] = { 0 };
+			strcpy(fontName, "Arial");
+			D3D_FONT    d3dFont;
+			memset(&d3dFont, 0x00, sizeof(D3D_FONT));
+			MByteToWChar(fontName, d3dFont.name, sizeof(d3dFont.name) / sizeof(d3dFont.name[0]));
+			d3dFont.size = 36;
+			d3dFont.width = 36;
+			D3D_Initial(&pRender->d3dHandle, pRender->renderHwnd, _frameInfo->width, _frameInfo->height, 0, 1, D3D_FORMAT_YUY2, &d3dFont);
+		}
+
+		if (pRender->d3dHandle && rgbData)// && rgbSize == width * height * 3)
+		{
+			RECT rcSrc, rcDst;
+			SetRect(&rcSrc, 0, 0, _frameInfo->width, _frameInfo->height);
+			::GetClientRect(pRender->renderHwnd, &rcDst);
+			if (!EqualRect(&rcDst, &pRender->renderRect))
+			{
+				if (pRender->d3dHandle)
+				{
+					D3D_Release(&pRender->d3dHandle);
+				}
+				CopyRect(&pRender->renderRect, &rcDst);
+
+				return;
+			}
+			
+			int ret = D3D_UpdateData(pRender->d3dHandle, 0, rgbData, _frameInfo->width, _frameInfo->height, &rcSrc, NULL);
+			if (ret != 0)
+			{
+				ret = D3D_UpdateData(pRender->d3dHandle, 0, rgbData, _frameInfo->width, _frameInfo->height, &rcSrc, NULL);
+			}
+
+			int ShownToScale = 1;
+			D3D_Render(pRender->d3dHandle, pRender->renderHwnd, ShownToScale, &rcDst, 0, NULL);// 1, & osd);
+		}
+	}
+}
+
+bool CEasyGBDDemoDlg::isNumber(const char* str) {
+	if (str == NULL || *str == '\0') {
+		return false; // 空指针或空字符串
+	}
+
+	int i = 0;
+	// 检查开头的负号
+	if (str[i] == '-') {
+		i++;
+		// 如果只有负号，不是有效数字
+		if (str[i] == '\0') {
+			return false;
+		}
+	}
+
+	bool hasDot = false; // 标记是否已有小数点
+	bool hasDigit = false; // 标记是否有数字
+
+	for (; str[i] != '\0'; i++) {
+		if (isdigit(str[i])) {
+			hasDigit = true;
+		}
+		else if (str[i] == '.') {
+			if (hasDot) {
+				return false; // 多个小数点
+			}
+			hasDot = true;
+		}
+		else {
+			return false; // 非法字符
+		}
+	}
+	return hasDigit; // 至少有一个数字
+}
+void CEasyGBDDemoDlg::OnBnClickedButtonSetLongLat()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	wchar_t wszLong[16] = { 0 };
+	char szLong[16] = { 0 };
+	GetDlgItem(IDC_EDIT_LONG)->GetWindowTextW(wszLong, sizeof(wszLong));
+	WCharToMByte(wszLong, szLong, sizeof(szLong) / sizeof(szLong[0]));
+
+	bool _isNumber = isNumber(szLong);
+	if (!_isNumber) {
+		MessageBox(TEXT("经度输入错误！"));
+		return;
+	}
+
+	wchar_t wszLat[16] = { 0 };
+	char szLat[16] = { 0 };
+	GetDlgItem(IDC_EDIT_LAT)->GetWindowTextW(wszLat, sizeof(wszLat));
+	WCharToMByte(wszLat, szLat, sizeof(szLat) / sizeof(szLat[0]));
+	_isNumber = isNumber(szLat);
+	if (!_isNumber) {
+		MessageBox(TEXT("纬度输入错误！"));
+		return;
+	}
+	double longitude = atof(szLong);
+	double latitude = atof(szLat);
+	printf("longitude:%f;latitude:%f\n", longitude, latitude);
+	libGB28181Device_SetLotLat(mGB28181Device.pChannel.id, longitude, latitude);
+}
+
+
+void CEasyGBDDemoDlg::OnBnClickedMfcbuttonBrowse()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	OnBnClickedButtonBrowse();
+	pMfcBtnPreview->SetWindowTextW(isPreview ? TEXT("关闭预览") : TEXT("开启预览"));
+	pMfcBtnPreview->SetFaceColor(isPreview ? DANGER_COLOR : SUCCESS_COLOR);
+}
+
+
+void CEasyGBDDemoDlg::OnBnClickedMfcbuttonStartup()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	OnBnClickedButtonStart();
+	pMfcBtnStartup->SetWindowTextW(mGB28181Device.isStart ? TEXT("停止") : TEXT("开始"));
+	pMfcBtnStartup->SetFaceColor(mGB28181Device.isStart ? DANGER_COLOR : SUCCESS_COLOR);
+}

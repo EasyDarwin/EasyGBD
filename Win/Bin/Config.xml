@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<XmlConfig>
+    <SipType>0</SipType>
+    <serverSipID>34020000002000000001</serverSipID>
+    <serverDomain>3402000000</serverDomain>
+    <serverIP>demo.easygbs.com</serverIP>
+    <serverSipPort>30310</serverSipPort>
+    <registerExpire>3600</registerExpire>
+    <heartbeatCount>3</heartbeatCount>
+    <heartbeatInterval>60</heartbeatInterval>
+    <protocol>UDP</protocol>
+    <password>12345678</password>
+    <localSipID>34020000001110000009</localSipID>
+    <localPort>15090</localPort>
+    <deviceName>EasyGBD-win-752287</deviceName>
+    <sourcePath>rtsp://</sourcePath>
+    <Channels>
+        <cid>34020000001310000001</cid>
+    </Channels>
+</XmlConfig>
