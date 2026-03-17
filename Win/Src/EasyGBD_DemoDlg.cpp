@@ -167,8 +167,14 @@ BOOL CEasyGBDDemoDlg::OnInitDialog()
 		pGBDVideoDlg->Create(ID_GBD_DIALOG_VIDEO, this);
 	}
 	pGBDVideoDlg->ShowWindow(SW_SHOW);
+
+	CRect	rcGrpClient;
+	CStatic* pGrp = (CStatic*)GetDlgItem(IDC_STATIC_LOCAL);
+	pGrp->GetWindowRect(&rcGrpClient);
+	ScreenToClient(&rcGrpClient);
 	CRect	rcDlg;
-	rcDlg.SetRect(20, 30, 560, 455);
+	rcDlg.SetRect(rcGrpClient.left + 10, rcGrpClient.top + 25,
+		rcGrpClient.right - 10, rcGrpClient.bottom - 12);
 	pGBDVideoDlg->MoveWindow(&rcDlg);
 
 	pComboxProtocolType = (CComboBox*)GetDlgItem(IDC_COMBO_PROTOCOL_TYPE);
